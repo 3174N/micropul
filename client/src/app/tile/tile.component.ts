@@ -7,13 +7,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TileComponent implements OnInit {
   rotationAngle = 0;
-  tilePath = '../../assets/tiles/tile_0.png';
+  tilePath = '../../assets/tiles/tile_15.png';
 
   constructor() {}
 
   ngOnInit(): void {}
 
-  onClick() {
+  onClick(event: MouseEvent) {
+    event.preventDefault();
     this.rotationAngle = (this.rotationAngle + 90) % 360;
   }
 }
