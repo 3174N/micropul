@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'tile',
@@ -8,9 +8,11 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class TileComponent implements OnInit {
   @Input() tile: string | null = null;
+  tilePath = '';
 
   rotationAngle = 0;
-  tilePath = '';
+  readonly SCROLL_THRESH = 50;
+  isHovered = false;
 
   constructor() {}
 
@@ -22,6 +24,30 @@ export class TileComponent implements OnInit {
   onClick(event: MouseEvent) {
     event.preventDefault();
     this.rotationAngle = (this.rotationAngle + 90) % 360;
+  }
+
+  @HostListener('window:wheel', ['$event'])
+  onScroll(event: WheelEvent) {
+    if (!this.isHovered) return;
+
+    const delta = event.deltaY;
+    const sign = delta / Math.abs(delta);
+    if (Math.abs(delta) > this.SCROLL_THRESH) {
+      this.rotationAngle += 90 * sign;
+      if (this.rotationAngle < 0)
+        this.rotationAngle = 360 - Math.abs(this.rotationAngle);
+      if (this.rotationAngle > 360) this.rotationAngle %= 360;
+    }
+  }
+
+  @HostListener('mouseenter')
+  onMouseEnter() {
+    this.isHovered = true;
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    this.isHovered = false;
   }
 
   dragEnd(event: CdkDragEnd) {
