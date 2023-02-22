@@ -7,9 +7,10 @@ import { TileComponent } from './tile/tile.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
+import { GridComponent } from './grid/grid.component';
 
 @NgModule({
-  declarations: [AppComponent, TileComponent],
+  declarations: [AppComponent, TileComponent, GridComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

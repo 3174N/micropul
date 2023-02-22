@@ -1,3 +1,8 @@
-<div class="tile" cdkDrag (contextmenu)="onClick($event)">
+<div
+  class="tile"
+  cdkDrag
+  (cdkDragEnded)="dragEnd($event)"
+  (contextmenu)="onClick($event)"
+>
   <img [src]="tilePath" [ngClass]="'rotate-' + rotationAngle" />
 </div>
