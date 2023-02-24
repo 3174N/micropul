@@ -7,7 +7,7 @@ import { Component, HostListener, Input, OnInit } from '@angular/core';
   styleUrls: ['./tile.component.less'],
 })
 export class TileComponent implements OnInit {
-  @Input() tile: string | null = null;
+  @Input() tileIndex: string | null = null;
   tilePath = '';
 
   rotationAngle = 0;
@@ -17,8 +17,7 @@ export class TileComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    console.log(this.tile);
-    this.tilePath = '../../assets/tiles/tile_' + this.tile + '.png';
+    this.tilePath = '../../assets/tiles/tile_' + this.tileIndex + '.png';
   }
 
   onClick(event: MouseEvent) {
@@ -48,11 +47,5 @@ export class TileComponent implements OnInit {
   @HostListener('mouseleave')
   onMouseLeave() {
     this.isHovered = false;
-  }
-
-  dragEnd(event: CdkDragEnd) {
-    const { x, y } = event.source.getFreeDragPosition();
-    // update the position of the element here, e.g.:
-    event.source.element.nativeElement.style.transform = `translate3d(${x}px, ${y}px, 5)`;
   }
 }
