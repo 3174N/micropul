@@ -7,6 +7,12 @@
     *ngFor="let row of tiles; index as i"
     [cdkDropListData]="tiles[i]"
   >
-    <tile *ngFor="let i of row" tileIndex="{{ i }}"></tile>
+    <ng-container *ngFor="let tile of row">
+      <tile tileIndex="{{ tile }}" *ngIf="tile != ''; else empty"></tile>
+      <ng-template #empty
+        ><tile tileIndex="-1" cdkDrag *ngIf="tile != '-1'; else none"></tile
+      ></ng-template>
+      <ng-template #none> <tile tileIndex="-1"></tile></ng-template>
+    </ng-container>
   </div>
 </div>
