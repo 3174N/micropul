@@ -8,11 +8,14 @@
     [cdkDropListData]="tiles[i]"
   >
     <ng-container *ngFor="let tile of row">
-      <tile tileIndex="{{ tile }}" *ngIf="tile != ''; else empty"></tile>
+      <tile
+        tileIndex="{{ tile }}"
+        *ngIf="tile != '' && tile != '-1'; else empty"
+      ></tile>
       <ng-template #empty
-        ><tile tileIndex="-1" cdkDrag *ngIf="tile != '-1'; else none"></tile
+        ><tile-empty cdkDrag *ngIf="tile != '-1'; else none"></tile-empty
       ></ng-template>
-      <ng-template #none> <tile tileIndex="-1"></tile></ng-template>
+      <ng-template #none><tile-placeholder></tile-placeholder></ng-template>
     </ng-container>
   </div>
 </div>
