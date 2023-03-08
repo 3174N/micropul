@@ -46,20 +46,13 @@ export class GridComponent implements OnInit {
     this.tiles = newTiles;
   }
 
-  drop(event: CdkDragDrop<any>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    } else {
-      console.log(event.previousContainer.data, event.container.data);
+  drop(event: CdkDragDrop<any>, row: number, col: number) {
+    // previous container = dragged tile.
+    // current container = tile in dropped position.
 
-      let temp = event.container.data[event.currentIndex];
-      event.container.data[event.currentIndex] =
-        event.previousContainer.data[event.previousIndex];
-      event.previousContainer.data[event.previousIndex] = temp;
-    }
+    if (event.container.data != '') return;
+
+    this.tiles[row][col] = event.previousContainer.data;
+    this.hand.splice(this.hand.indexOf(event.previousContainer.data), 1);
   }
 }

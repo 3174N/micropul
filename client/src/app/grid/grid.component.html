@@ -1,69 +1,45 @@
-<div class="grid" cdkDropListGroup>
-  <mat-grid-list cols="{{ tiles[0].length }}" rowHeight="50px">
-    <ng-container *ngFor="let row of tiles; index as i">
-      <mat-grid-tile *ngFor="let tile of row; index as j">
+<div class="content" cdkDropListGroup>
+  <div #board class="grid">
+    <mat-grid-list cols="3" rowHeight="52px">
+      <ng-container *ngFor="let row of tiles; let i = index">
+        <mat-grid-tile *ngFor="let cell of row; let j = index">
+          <div
+            class="cell"
+            cdkDropList
+            [cdkDropListData]="cell"
+            (cdkDropListDropped)="drop($event, i, j)"
+            (mouseover)="this.indexOver = i"
+            (mouseout)="indexOver = -1"
+          >
+            <div cdkDrag>
+              <tile
+                *ngIf="cell != '' && cell != '-1'"
+                [tileIndex]="cell"
+                width="100%"
+              ></tile>
+              <span *ngIf="cell != '' && cell != '-1'"></span>
+              <div *cdkDragPlaceholder></div>
+            </div>
+          </div>
+        </mat-grid-tile>
+      </ng-container>
+    </mat-grid-list>
+  </div>
+  <div class="hand">
+    <mat-grid-list cols="3">
+      <mat-grid-tile *ngFor="let cell of hand; let i = index">
         <div
           class="cell"
           cdkDropList
-          [cdkDropListData]="tile"
-          (cdkDropListDropped)="drop($event)"
-          [style.background]="
-            i * tiles.length + j == indexOver ? 'red' : 'yellowgreen'
-          "
-          (mouseover)="this.indexOver = i * tiles.length + j"
-          (mouseout)="indexOver = -1"
+          [cdkDropListData]="cell"
+          (cdkDropListDropped)="drop($event, -1, -1)"
         >
-          <div *ngIf="tile != '' && tile != '-1'">
-            <tile tileIndex="{{ tile }}"></tile>
-            <!-- <span *ngIf="tile == '' || tile == '-1'"></span> -->
-            <div *cdkDragPlaceholder></div>
-          </div>
-          <div *ngIf="tile == ''" cdkDrag cdkDragDisabled>
-            <tile-empty></tile-empty>
-            <div *cdkDragPlaceholder></div>
-          </div>
-          <div *ngIf="tile == '-1'">
-            <tile-empty></tile-empty>
-            <!-- <span *ngIf="tile == '' || tile == '-1'"></span> -->
+          <div cdkDrag>
+            <tile [tileIndex]="cell"></tile>
             <div *cdkDragPlaceholder></div>
           </div>
         </div>
       </mat-grid-tile>
-    </ng-container>
-  </mat-grid-list>
-
-  <!-- <div
-    class="tile-row"
-    cdkDropList
-    #board="cdkDropList"
-    cdkDropListOrientation="horizontal"
-    (cdkDropListDropped)="drop($event)"
-    *ngFor="let row of tiles; index as i"
-    [cdkDropListData]="tiles[i]"
-  >
-    <ng-container *ngFor="let tile of row">
-      <tile
-        tileIndex="{{ tile }}"
-        *ngIf="tile != '' && tile != '-1'; else empty"
-      ></tile>
-      <ng-template #empty
-        ><tile-empty
-          cdkDrag
-          cdkDragDisabled
-          *ngIf="tile != '-1'; else none"
-        ></tile-empty
-      ></ng-template>
-      <ng-template #none><tile-placeholder></tile-placeholder></ng-template>
-    </ng-container>
+    </mat-grid-list>
   </div>
-</div>
-<div
-  class="hand"
-  cdkDropList
-  cdkDropListOrientation="horizontal"
-  [cdkDropListData]="hand"
-  *ngFor="let tile of hand"
->
-  <tile tileIndex="{{ tile }}" cdkDrag></tile>
-</div> -->
 </div>
