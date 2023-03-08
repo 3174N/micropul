@@ -11,14 +11,15 @@
             (mouseover)="this.indexOver = i"
             (mouseout)="indexOver = -1"
           >
-            <div cdkDrag>
-              <tile
-                *ngIf="cell != '' && cell != '-1'"
-                [tileIndex]="cell"
-                width="100%"
-              ></tile>
-              <span *ngIf="cell != '' && cell != '-1'"></span>
+            <div *ngIf="cell != '' && cell != '-1'">
+              <tile [tileIndex]="cell" width="100%"></tile>
               <div *cdkDragPlaceholder></div>
+            </div>
+            <div *ngIf="cell == ''">
+              <tile-placeholder></tile-placeholder>
+            </div>
+            <div *ngIf="cell == '-1'">
+              <tile-empty></tile-empty>
             </div>
           </div>
         </mat-grid-tile>
