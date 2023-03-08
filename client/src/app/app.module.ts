@@ -10,15 +10,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { GridComponent } from './grid/grid.component';
 import { TileEmptyComponent } from './tile-empty/tile-empty.component';
 import { TilePlaceholderComponent } from './tile-placeholder/tile-placeholder.component';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatCardModule } from '@angular/material/card';
 
 @NgModule({
-  declarations: [AppComponent, TileComponent, GridComponent, TileEmptyComponent, TilePlaceholderComponent],
+  declarations: [
+    AppComponent,
+    TileComponent,
+    GridComponent,
+    TileEmptyComponent,
+    TilePlaceholderComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     DragDropModule,
     MatIconModule,
+    MatGridListModule,
+    MatCardModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

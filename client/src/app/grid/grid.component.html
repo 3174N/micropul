@@ -1,7 +1,41 @@
 <div class="grid" cdkDropListGroup>
-  <div
+  <mat-grid-list cols="{{ tiles[0].length }}" rowHeight="50px">
+    <ng-container *ngFor="let row of tiles; index as i">
+      <mat-grid-tile *ngFor="let tile of row; index as j">
+        <div
+          class="cell"
+          cdkDropList
+          [cdkDropListData]="tile"
+          (cdkDropListDropped)="drop($event)"
+          [style.background]="
+            i * tiles.length + j == indexOver ? 'red' : 'yellowgreen'
+          "
+          (mouseover)="this.indexOver = i * tiles.length + j"
+          (mouseout)="indexOver = -1"
+        >
+          <div *ngIf="tile != '' && tile != '-1'">
+            <tile tileIndex="{{ tile }}"></tile>
+            <!-- <span *ngIf="tile == '' || tile == '-1'"></span> -->
+            <div *cdkDragPlaceholder></div>
+          </div>
+          <div *ngIf="tile == ''" cdkDrag cdkDragDisabled>
+            <tile-empty></tile-empty>
+            <div *cdkDragPlaceholder></div>
+          </div>
+          <div *ngIf="tile == '-1'">
+            <tile-empty></tile-empty>
+            <!-- <span *ngIf="tile == '' || tile == '-1'"></span> -->
+            <div *cdkDragPlaceholder></div>
+          </div>
+        </div>
+      </mat-grid-tile>
+    </ng-container>
+  </mat-grid-list>
+
+  <!-- <div
     class="tile-row"
     cdkDropList
+    #board="cdkDropList"
     cdkDropListOrientation="horizontal"
     (cdkDropListDropped)="drop($event)"
     *ngFor="let row of tiles; index as i"
@@ -13,9 +47,23 @@
         *ngIf="tile != '' && tile != '-1'; else empty"
       ></tile>
       <ng-template #empty
-        ><tile-empty cdkDrag *ngIf="tile != '-1'; else none"></tile-empty
+        ><tile-empty
+          cdkDrag
+          cdkDragDisabled
+          *ngIf="tile != '-1'; else none"
+        ></tile-empty
       ></ng-template>
       <ng-template #none><tile-placeholder></tile-placeholder></ng-template>
     </ng-container>
   </div>
+</div>
+<div
+  class="hand"
+  cdkDropList
+  cdkDropListOrientation="horizontal"
+  [cdkDropListData]="hand"
+  *ngFor="let tile of hand"
+>
+  <tile tileIndex="{{ tile }}" cdkDrag></tile>
+</div> -->
 </div>

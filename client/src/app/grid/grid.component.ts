@@ -7,13 +7,17 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./grid.component.less'],
 })
 export class GridComponent implements OnInit {
-  tiles = [
+  indexOver: number = -1;
+  previewStyle: any = null;
+
+  tiles: string[][] = [
     ['', '', ''],
     ['', '', '3'],
     ['2', '1', '0'],
     ['', '13', ''],
     ['', '', ''],
   ];
+  hand: string[] = ['31', '32', '33'];
 
   constructor() {}
 
@@ -40,10 +44,9 @@ export class GridComponent implements OnInit {
       newTiles.push(row);
     }
     this.tiles = newTiles;
-    console.log(this.tiles);
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<any>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -51,7 +54,8 @@ export class GridComponent implements OnInit {
         event.currentIndex
       );
     } else {
-      console.log(event.previousIndex, event.currentIndex);
+      console.log(event.previousContainer.data, event.container.data);
+
       let temp = event.container.data[event.currentIndex];
       event.container.data[event.currentIndex] =
         event.previousContainer.data[event.previousIndex];
