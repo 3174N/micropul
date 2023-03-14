@@ -10,7 +10,9 @@ export class TileComponent implements OnInit {
   @Input() tileIndex: string | null = null;
   tilePath = '';
 
-  rotationAngle = 0;
+  @Input() locked: boolean = false;
+  @Input() rotationAngle: number = 0;
+
   readonly SCROLL_THRESH = 50;
   isHovered = false;
 
@@ -27,7 +29,7 @@ export class TileComponent implements OnInit {
 
   @HostListener('window:wheel', ['$event'])
   onScroll(event: WheelEvent) {
-    if (!this.isHovered) return;
+    if (!this.isHovered || this.locked) return;
 
     const delta = event.deltaY;
     const sign = delta / Math.abs(delta);
