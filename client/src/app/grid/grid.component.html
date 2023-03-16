@@ -1,46 +1,27 @@
-<div class="content" cdkDropListGroup>
-  <div #board class="grid">
-    <mat-grid-list cols="3" rowHeight="52px">
-      <ng-container *ngFor="let row of tiles; let i = index">
-        <mat-grid-tile *ngFor="let cell of row; let j = index">
-          <div
-            class="cell"
-            cdkDropList
-            [cdkDropListData]="cell"
-            (cdkDropListDropped)="drop($event, i, j)"
-            (mouseover)="this.indexOver = i"
-            (mouseout)="indexOver = -1"
-          >
-            <div *ngIf="cell != ' ' && cell != '-1'">
-              <tile [tileIndex]="cell" width="100%" [locked]="true"></tile>
-              <div *cdkDragPlaceholder></div>
-            </div>
-            <div *ngIf="cell == ' '">
-              <tile-placeholder></tile-placeholder>
-            </div>
-            <div *ngIf="cell == '-1'">
-              <tile-empty></tile-empty>
-            </div>
-          </div>
-        </mat-grid-tile>
-      </ng-container>
-    </mat-grid-list>
-  </div>
-  <div class="hand">
-    <mat-grid-list cols="3">
-      <mat-grid-tile *ngFor="let cell of hand; let i = index">
+<div #board class="grid">
+  <mat-grid-list cols="3" rowHeight="52px">
+    <ng-container *ngFor="let row of tiles; let i = index">
+      <mat-grid-tile *ngFor="let cell of row; let j = index">
         <div
           class="cell"
           cdkDropList
           [cdkDropListData]="cell"
-          (cdkDropListDropped)="drop($event, -1, -1)"
+          (cdkDropListDropped)="drop($event, i, j)"
+          (mouseover)="this.indexOver = i"
+          (mouseout)="indexOver = -1"
         >
-          <div cdkDrag>
-            <tile [tileIndex]="cell"></tile>
+          <div *ngIf="cell != ' ' && cell != '-1'">
+            <tile [tileIndex]="cell" width="100%" [locked]="true"></tile>
             <div *cdkDragPlaceholder></div>
+          </div>
+          <div *ngIf="cell == ' '">
+            <tile-placeholder></tile-placeholder>
+          </div>
+          <div *ngIf="cell == '-1'">
+            <tile-empty></tile-empty>
           </div>
         </div>
       </mat-grid-tile>
-    </mat-grid-list>
-  </div>
+    </ng-container>
+  </mat-grid-list>
 </div>

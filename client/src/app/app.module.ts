@@ -12,6 +12,7 @@ import { TileEmptyComponent } from './tile-empty/tile-empty.component';
 import { TilePlaceholderComponent } from './tile-placeholder/tile-placeholder.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
+import { HandComponent } from './hand/hand.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { MatCardModule } from '@angular/material/card';
     GridComponent,
     TileEmptyComponent,
     TilePlaceholderComponent,
+    HandComponent,
   ],
   imports: [
     BrowserModule,

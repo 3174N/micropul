@@ -24,6 +24,9 @@ export class TileComponent implements OnInit {
 
   onClick(event: MouseEvent) {
     event.preventDefault();
+
+    if (!this.isHovered || this.locked) return;
+
     this.rotationAngle = (this.rotationAngle + 90) % 360;
   }
 

@@ -15,7 +15,6 @@ export class GridComponent implements OnInit {
     ['2', '1', '0'],
     [' ', '13', ' '],
   ];
-  hand: string[] = ['31', '32', '33'];
 
   constructor() {}
 
@@ -51,6 +50,6 @@ export class GridComponent implements OnInit {
     if (event.container.data != ' ') return;
 
     this.tiles[row][col] = event.previousContainer.data;
-    this.hand.splice(this.hand.indexOf(event.previousContainer.data), 1);
+    // this.hand.splice(this.hand.indexOf(event.previousContainer.data), 1);
   }
 }
