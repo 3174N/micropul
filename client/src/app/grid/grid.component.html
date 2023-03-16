@@ -1,4 +1,4 @@
-<div #board class="grid">
+<div #board class="grid" cdkDrag>
   <mat-grid-list cols="3" rowHeight="52px">
     <ng-container *ngFor="let row of tiles; let i = index">
       <mat-grid-tile *ngFor="let cell of row; let j = index">
