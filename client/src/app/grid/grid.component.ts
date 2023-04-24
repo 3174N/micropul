@@ -10,19 +10,23 @@ export class GridComponent implements OnInit {
   indexOver: number = -1;
   previewStyle: any = null;
 
-  tiles: string[][] = [
-    [' ', ' ', '3'],
-    ['2', '1', '0'],
-    [' ', '13', ' '],
-  ];
+  tiles: string[][] = new Array(48 * 2 - 1).fill(
+    new Array(48 * 2 - 1).fill(' ')
+  );
 
   constructor() {}
 
   ngOnInit(): void {
+    this.tiles[48][48] = '1';
+
+    this.updateGrid();
+  }
+
+  updateGrid() {
     let newTiles = [];
-    for (let i = 0; i < this.tiles.length; i++) {
+    for (let i = 0; i < 48 * 2 - 1; i++) {
       let row = [];
-      for (let j = 0; j < this.tiles[i].length; j++) {
+      for (let j = 0; j < 48 * 2 - 1; j++) {
         row.push(
           this.tiles[i][j] != ' '
             ? this.tiles[i][j]
@@ -41,6 +45,7 @@ export class GridComponent implements OnInit {
       newTiles.push(row);
     }
     this.tiles = newTiles;
+    console.log(this.tiles);
   }
 
   drop(event: CdkDragDrop<any>, row: number, col: number) {
@@ -50,6 +55,6 @@ export class GridComponent implements OnInit {
     if (event.container.data != ' ') return;
 
     this.tiles[row][col] = event.previousContainer.data;
-    // this.hand.splice(this.hand.indexOf(event.previousContainer.data), 1);
+    this.updateGrid();
   }
 }
