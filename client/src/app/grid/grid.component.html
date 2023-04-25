@@ -10,14 +10,18 @@
           (mouseover)="this.indexOver = i"
           (mouseout)="indexOver = -1"
         >
-          <div *ngIf="cell != ' ' && cell != '-1'">
-            <tile [tileIndex]="cell" width="100%" [locked]="true"></tile>
+          <div *ngIf="cell.state == 1">
+            <tile
+              [tileIndex]="cell.tileIndex"
+              width="100%"
+              [locked]="true"
+            ></tile>
             <div *cdkDragPlaceholder></div>
           </div>
-          <div *ngIf="cell == ' '">
+          <div *ngIf="cell.state == 0">
             <tile-placeholder></tile-placeholder>
           </div>
-          <div *ngIf="cell == '-1'">
+          <div *ngIf="cell.state == -1">
             <tile-empty></tile-empty>
           </div>
         </div>
