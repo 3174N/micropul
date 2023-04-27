@@ -1,12 +1,19 @@
-<div #board class="grid" cdkDrag>
-  <mat-grid-list cols="3" rowHeight="52px">
+<div #board class="grid">
+  <img src="../../assets/tiles/tile_0.png" alt="  " />
+  <img src="../../assets/tiles/tile_1.png" alt="  " />
+  <img src="../../assets/tiles/tile_2.png" alt="  " />
+  <img src="../../assets/tiles/tile_3.png" alt="  " />
+  <img src="../../assets/tiles/tile_4.png" alt="  " />
+  <img src="../../assets/tiles/tile_5.png" alt="  " />
+  <img src="../../assets/tiles/tile_6.png" alt="  " />
+  <img src="../../assets/tiles/tile_7.png" alt="  " />
+  <img src="../../assets/tiles/tile_8.png" alt="  " />
+  <img src="../../assets/tiles/tile_9.png" alt="  " />
+  <!-- <mat-grid-list cols="3" rowHeight="52px">
     <ng-container *ngFor="let row of tiles; let i = index">
       <mat-grid-tile *ngFor="let cell of row; let j = index">
         <div
           class="cell"
-          cdkDropList
-          [cdkDropListData]="cell"
-          (cdkDropListDropped)="drop($event, i, j)"
           (mouseover)="this.indexOver = i"
           (mouseout)="indexOver = -1"
         >
@@ -16,7 +23,6 @@
               width="100%"
               [locked]="true"
             ></tile>
-            <div *cdkDragPlaceholder></div>
           </div>
           <div *ngIf="cell.state == 0">
             <tile-placeholder></tile-placeholder>
@@ -27,5 +33,5 @@
         </div>
       </mat-grid-tile>
     </ng-container>
-  </mat-grid-list>
+  </mat-grid-list> -->
 </div>

@@ -1,11 +1,8 @@
 <div class="hand">
   <mat-grid-list [cols]="hand.length">
     <mat-grid-tile *ngFor="let cell of hand; let i = index">
-      <div class="cell" cdkDropList [cdkDropListData]="cell">
-        <div cdkDrag>
-          <tile [tileIndex]="cell"></tile>
-          <div *cdkDragPlaceholder></div>
-        </div>
+      <div class="cell">
+        <tile [tileIndex]="cell"></tile>
       </div>
     </mat-grid-tile>
   </mat-grid-list>
