@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { NgxPanZoomModule } from 'ngx-panzoom';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -31,6 +32,7 @@ import { HandComponent } from './hand/hand.component';
     MatIconModule,
     MatGridListModule,
     MatCardModule,
+    NgxPanZoomModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
