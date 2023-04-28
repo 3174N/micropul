@@ -1,45 +1,46 @@
-<div
-  #board
-  class="grid"
-  [ngStyle]="{
-    transform:
-      'scale(' +
-      scale +
-      ') translate(' +
-      translateX +
-      'px, ' +
-      translateY +
-      'px)'
-  }"
->
-  <img src="../../assets/tiles/test.svg" alt="  " />
-  <img src="../../assets/tiles/tile_1.png" alt="  " />
-  <img src="../../assets/tiles/tile_2.png" alt="  " />
-  <img src="../../assets/tiles/tile_3.png" alt="  " />
-  <img src="../../assets/tiles/tile_4.png" alt="  " />
-  <img src="../../assets/tiles/tile_5.png" alt="  " />
-  <img src="../../assets/tiles/tile_6.png" alt="  " />
-  <img src="../../assets/tiles/tile_7.png" alt="  " />
-  <img src="../../assets/tiles/tile_8.png" alt="  " />
-  <img src="../../assets/tiles/tile_9.png" alt="  " />
-  <!-- <mat-grid-list cols="3" rowHeight="52px">
-    <ng-container *ngFor="let row of tiles; let i = index">
-      <mat-grid-tile *ngFor="let cell of row; let j = index">
-        <div
+<div class="container">
+  <div
+    #board
+    class="grid"
+    [ngStyle]="{
+      transform:
+        'scale(' +
+        scale +
+        ') translate(' +
+        translateX +
+        'px, ' +
+        translateY +
+        'px)'
+    }"
+  >
+    <img src="../../assets/tiles/test.svg" alt="  " />
+    <img src="../../assets/tiles/tile_1.png" alt="  " />
+    <img src="../../assets/tiles/tile_2.png" alt="  " />
+    <img src="../../assets/tiles/tile_3.png" alt="  " />
+    <img src="../../assets/tiles/tile_4.png" alt="  " />
+    <img src="../../assets/tiles/tile_5.png" alt="  " />
+    <img src="../../assets/tiles/tile_6.png" alt="  " />
+    <img src="../../assets/tiles/tile_7.png" alt="  " />
+    <img src="../../assets/tiles/tile_8.png" alt="  " />
+    <img src="../../assets/tiles/tile_9.png" alt="  " />
+    <!-- <mat-grid-list cols="3" rowHeight="52px">
+      <ng-container *ngFor="let row of tiles; let i = index">
+        <mat-grid-tile *ngFor="let cell of row; let j = index">
+          <div
           class="cell"
           (mouseover)="this.indexOver = i"
           (mouseout)="indexOver = -1"
         >
-          <div *ngIf="cell.state == 1">
-            <tile
-              [tileIndex]="cell.tileIndex"
+        <div *ngIf="cell.state == 1">
+          <tile
+          [tileIndex]="cell.tileIndex"
               width="100%"
               [locked]="true"
-            ></tile>
-          </div>
-          <div *ngIf="cell.state == 0">
-            <tile-placeholder></tile-placeholder>
-          </div>
+              ></tile>
+            </div>
+            <div *ngIf="cell.state == 0">
+              <tile-placeholder></tile-placeholder>
+            </div>
           <div *ngIf="cell.state == -1">
             <tile-empty></tile-empty>
           </div>
@@ -47,4 +48,5 @@
       </mat-grid-tile>
     </ng-container>
   </mat-grid-list> -->
+  </div>
 </div>

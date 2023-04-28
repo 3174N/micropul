@@ -109,25 +109,26 @@ export class GridComponent implements OnInit {
 
   @HostListener('window:mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
-    if (event.button === 1 && this.isHovered) {
-      // Right mouse button
-      event.preventDefault();
+    // Mouse button 1 = scroll wheel
+    if (event.button !== 1 || !this.isHovered) return;
 
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
+    event.preventDefault();
 
-      this.isDragging = true;
-      document.body.style.cursor = 'grabbing';
-    }
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+
+    this.isDragging = true;
+    document.body.style.cursor = 'grabbing';
   }
 
   @HostListener('window:mouseup', ['$event'])
   onMouseUp(event: MouseEvent) {
-    if (event.button === 1 && this.isHovered) {
-      event.preventDefault();
-      this.isDragging = false;
-      document.body.style.cursor = 'default';
-    }
+    if (event.button !== 1 || !this.isHovered) return;
+
+    event.preventDefault();
+
+    this.isDragging = false;
+    document.body.style.cursor = 'default';
   }
 
   @HostListener('window:mousemove', ['$event'])
