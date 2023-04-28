@@ -13,5 +13,8 @@ import {
 })
 export class AppComponent {
   title = 'client';
-  panZoomConfig: PanZoomConfig = new PanZoomConfig();
+  // panZoomConfig: PanZoomConfig = new PanZoomConfig({
+  //   zoomLevels: 10,
+  //   zoomStepDuration: 0.1,
+  // });
 }

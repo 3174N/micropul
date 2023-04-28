@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 
 interface Tile {
   state: number; // -1: Empty tile; 0: Placeable tile; 1: Occupied tile.
@@ -18,6 +18,13 @@ export class GridComponent implements OnInit {
   tiles: Tile[][] = new Array(48 * 2 - 1).fill(
     new Array(48 * 2 - 1).fill({ state: -1, tileIndex: null })
   );
+
+  @Input() scale: number = 1;
+  readonly SCROLL_THRESH = 50;
+  readonly MIN_SCALE = 0.25;
+  readonly MAX_SCALE = 5;
+  readonly SCALE_STEP = 0.25;
+  isHovered = false;
 
   constructor() {}
 
@@ -64,5 +71,30 @@ export class GridComponent implements OnInit {
       tileIndex: event.previousContainer.data,
     };
     this.updateGrid();
+  }
+
+  clamp = (value: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, value));
+
+  @HostListener('window:wheel', ['$event'])
+  onScroll(event: WheelEvent) {
+    // if (!this.isHovered || this.locked) return;
+
+    const delta = event.deltaY;
+    const sign = delta / Math.abs(delta);
+    if (Math.abs(delta) > this.SCROLL_THRESH) {
+      this.scale -= this.SCALE_STEP * sign;
+      this.scale = this.clamp(this.scale, this.MIN_SCALE, this.MAX_SCALE);
+    }
+  }
+
+  @HostListener('mouseenter')
+  onMouseEnter() {
+    this.isHovered = true;
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    this.isHovered = false;
   }
 }
