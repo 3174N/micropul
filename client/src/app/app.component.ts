@@ -1,10 +1,4 @@
 import { Component } from '@angular/core';
-import {
-  PanZoomConfig,
-  PanZoomAPI,
-  PanZoomModel,
-  PanZoomConfigOptions,
-} from 'ngx-panzoom';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +7,4 @@ import {
 })
 export class AppComponent {
   title = 'client';
-  // panZoomConfig: PanZoomConfig = new PanZoomConfig({
-  //   zoomLevels: 10,
-  //   zoomStepDuration: 0.1,
-  // });
 }

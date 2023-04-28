@@ -19,12 +19,19 @@ export class GridComponent implements OnInit {
     new Array(48 * 2 - 1).fill({ state: -1, tileIndex: null })
   );
 
-  @Input() scale: number = 1;
   readonly SCROLL_THRESH = 50;
   readonly MIN_SCALE = 0.25;
-  readonly MAX_SCALE = 5;
+  readonly MAX_SCALE = 20;
   readonly SCALE_STEP = 0.25;
   isHovered = false;
+
+  @Input() scale: number = 1;
+  @Input() translateX: number = 0;
+  @Input() translateY: number = 0;
+
+  lastMouseX = 0;
+  lastMouseY = 0;
+  isDragging = false;
 
   constructor() {}
 
@@ -78,7 +85,9 @@ export class GridComponent implements OnInit {
 
   @HostListener('window:wheel', ['$event'])
   onScroll(event: WheelEvent) {
-    // if (!this.isHovered || this.locked) return;
+    if (!this.isHovered || this.isDragging) return;
+
+    event.preventDefault();
 
     const delta = event.deltaY;
     const sign = delta / Math.abs(delta);
@@ -96,5 +105,40 @@ export class GridComponent implements OnInit {
   @HostListener('mouseleave')
   onMouseLeave() {
     this.isHovered = false;
+  }
+
+  @HostListener('window:mousedown', ['$event'])
+  onMouseDown(event: MouseEvent) {
+    if (event.button === 1 && this.isHovered) {
+      // Right mouse button
+      event.preventDefault();
+
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
+
+      this.isDragging = true;
+      document.body.style.cursor = 'grabbing';
+    }
+  }
+
+  @HostListener('window:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent) {
+    if (event.button === 1 && this.isHovered) {
+      event.preventDefault();
+      this.isDragging = false;
+      document.body.style.cursor = 'default';
+    }
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.isDragging) return;
+
+    const deltaX = event.clientX - this.lastMouseX;
+    const deltaY = event.clientY - this.lastMouseY;
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+    this.translateX += deltaX / this.scale;
+    this.translateY += deltaY / this.scale;
   }
 }

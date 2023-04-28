@@ -1,4 +1,17 @@
-<div #board class="grid" style="transform: scale({{ scale }})">
+<div
+  #board
+  class="grid"
+  [ngStyle]="{
+    transform:
+      'scale(' +
+      scale +
+      ') translate(' +
+      translateX +
+      'px, ' +
+      translateY +
+      'px)'
+  }"
+>
   <img src="../../assets/tiles/test.svg" alt="  " />
   <img src="../../assets/tiles/tile_1.png" alt="  " />
   <img src="../../assets/tiles/tile_2.png" alt="  " />
