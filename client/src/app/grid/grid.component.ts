@@ -24,9 +24,9 @@ export class GridComponent implements OnInit {
   tiles: Tile[] = [{ position: { x: 3, y: 2 }, isTile: true, tileIndex: '0' }];
 
   readonly SCROLL_THRESH = 50;
-  readonly MIN_SCALE = 0.25;
-  readonly MAX_SCALE = 20;
-  readonly SCALE_STEP = 0.25;
+  readonly MIN_SCALE = 0.5;
+  readonly MAX_SCALE = 10;
+  readonly SCALE_STEP = 1.02;
   isHovered = false;
 
   @Input() scale: number = 1;
@@ -95,8 +95,14 @@ export class GridComponent implements OnInit {
     const delta = event.deltaY;
     const sign = delta / Math.abs(delta);
     if (Math.abs(delta) > this.SCROLL_THRESH) {
-      this.scale -= this.SCALE_STEP * sign;
+      const scaleChange = Math.pow(
+        this.SCALE_STEP,
+        -sign * 0.05 * Math.abs(delta)
+      );
+      this.scale *= scaleChange;
       this.scale = this.clamp(this.scale, this.MIN_SCALE, this.MAX_SCALE);
+
+      const centerY = window.innerHeight / 2;
     }
   }
 
