@@ -20,6 +20,7 @@
         [style.left.px]="tile.position.x * 51"
         class="tile-container"
       >
+        <tile-placeholder *ngIf="!tile.isTile"></tile-placeholder>
         <tile
           *ngIf="tile.isTile"
           [tileIndex]="tile.tileIndex"

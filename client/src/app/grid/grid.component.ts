@@ -21,7 +21,7 @@ export class GridComponent implements OnInit {
   indexOver: number = -1;
   previewStyle: any = null;
 
-  tiles: Tile[] = [{ position: { x: 3, y: 2 }, isTile: true, tileIndex: '0' }];
+  tiles: Tile[] = [];
 
   readonly SCROLL_THRESH = 50;
   readonly MIN_SCALE = 0.5;
@@ -40,47 +40,57 @@ export class GridComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    this.tiles.push({ position: { x: 0, y: 0 }, isTile: true, tileIndex: '4' });
-    this.tiles.push({ position: { x: 2, y: 1 }, isTile: true, tileIndex: '7' });
-    this.tiles.push({
-      position: { x: 3, y: 3 },
-      isTile: true,
-      tileIndex: '14',
-    });
-    this.tiles.push({
-      position: { x: 7, y: 2 },
-      isTile: true,
-      tileIndex: '28',
-    });
-    this.tiles.push({ position: { x: 0, y: 1 }, isTile: true, tileIndex: '3' });
-
-    this.updateGrid();
+    this.addTile('0', { x: 0, y: 0 });
+    this.addTile('2', { x: 1, y: 0 });
+    this.addTile('3', { x: 0, y: 1 });
+    this.addTile('4', { x: -1, y: 0 });
+    this.addTile('4', { x: 0, y: -1 });
   }
 
-  updateGrid() {
-    // let newTiles = [];
-    // for (let i = 0; i < 48 * 2 - 1; i++) {
-    //   let row = [];
-    //   for (let j = 0; j < 48 * 2 - 1; j++) {
-    //     row.push(
-    //       this.tiles[i][j].state != -1
-    //         ? this.tiles[i][j]
-    //         : (i < this.tiles.length - 1
-    //             ? this.tiles[i + 1][j].state == 1
-    //             : false) ||
-    //           (j < this.tiles[i].length - 1
-    //             ? this.tiles[i][j + 1].state == 1
-    //             : false) ||
-    //           (j > 0 ? this.tiles[i][j - 1].state == 1 : false) ||
-    //           (i > 0 ? this.tiles[i - 1][j].state == 1 : false)
-    //         ? { state: 0, tileIndex: null }
-    //         : { state: -1, tileIndex: null }
-    //     );
-    //   }
-    //   newTiles.push(row);
-    // }
-    // this.tiles = newTiles;
-    // console.log(this.tiles);
+  addPlaceholder(coords: Coords[], position: Coords) {
+    if (!coords.some((coord) => coord.x == position.x && coord.y == position.y))
+      this.tiles.push({
+        position: { x: position.x, y: position.y },
+        isTile: false,
+        tileIndex: null,
+      });
+  }
+
+  sortTiles(a: Tile, b: Tile) {
+    if (a.isTile && !b.isTile) {
+      return 1; // a comes after b
+    } else if (!a.isTile && b.isTile) {
+      return -1; // a comes before b
+    } else {
+      return 0; // no change in order
+    }
+  }
+
+  addTile(index: string, position: Coords) {
+    // Get all placeholder/tiles coords.
+    let coords: Coords[] = this.tiles.map((tile) => tile.position);
+
+    // Remove placeholder in the new tile position.
+    if (
+      coords.some((coord) => coord.x == position.x && coord.y == position.y)
+    ) {
+      let index = this.tiles.findIndex(
+        (tile) => tile.position.x == position.x && tile.position.y == position.y
+      );
+      this.tiles.splice(index, 1);
+    }
+
+    // Add new tile.
+    this.tiles.push({ position: position, tileIndex: index, isTile: true });
+
+    // Add placeholders around new tile if there is empty space there.
+    this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
+    this.addPlaceholder(coords, { x: position.x + 1, y: position.y });
+    this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
+    this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
+
+    // Sort tiles for rendering.
+    this.tiles.sort(this.sortTiles);
   }
 
   clamp = (value: number, min: number, max: number) =>
@@ -90,8 +100,6 @@ export class GridComponent implements OnInit {
   onScroll(event: WheelEvent) {
     if (!this.isHovered || this.isDragging) return;
 
-    event.preventDefault();
-
     const delta = event.deltaY;
     const sign = delta / Math.abs(delta);
     if (Math.abs(delta) > this.SCROLL_THRESH) {
@@ -99,10 +107,11 @@ export class GridComponent implements OnInit {
         this.SCALE_STEP,
         -sign * 0.05 * Math.abs(delta)
       );
+      let oldScale = this.scale;
       this.scale *= scaleChange;
       this.scale = this.clamp(this.scale, this.MIN_SCALE, this.MAX_SCALE);
 
-      const centerY = window.innerHeight / 2;
+      // TODO: Zoom from the middle of the screen.
     }
   }
 
