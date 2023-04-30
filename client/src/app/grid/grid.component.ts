@@ -10,6 +10,8 @@ interface Tile {
   position: Coords;
   isTile: boolean; // Non-tile are places near tiles that can be placed on.
   tileIndex: string | null;
+  rotation: number;
+  locked: boolean;
 }
 
 @Component({
@@ -53,16 +55,18 @@ export class GridComponent implements OnInit {
         position: { x: position.x, y: position.y },
         isTile: false,
         tileIndex: null,
+        rotation: 0,
+        locked: true,
       });
   }
 
   sortTiles(a: Tile, b: Tile) {
     if (a.isTile && !b.isTile) {
-      return 1; // a comes after b
+      return 1; // a comes after b.
     } else if (!a.isTile && b.isTile) {
-      return -1; // a comes before b
+      return -1; // a comes before b.
     } else {
-      return 0; // no change in order
+      return 0; // No change in order.
     }
   }
 
@@ -70,18 +74,32 @@ export class GridComponent implements OnInit {
     // Get all placeholder/tiles coords.
     let coords: Coords[] = this.tiles.map((tile) => tile.position);
 
-    // Remove placeholder in the new tile position.
+    // Check if there is a placeholder in the new position.
     if (
-      coords.some((coord) => coord.x == position.x && coord.y == position.y)
-    ) {
-      let index = this.tiles.findIndex(
-        (tile) => tile.position.x == position.x && tile.position.y == position.y
-      );
-      this.tiles.splice(index, 1);
-    }
+      !this.tiles.some(
+        (tile) =>
+          tile.position.x == position.x &&
+          tile.position.y == position.y &&
+          !tile.isTile
+      ) &&
+      coords.length > 0 // First tile can be placed without placeholder.
+    )
+      return; // Tiles cannot be placed on spaces that are not placeholders.
+
+    // Remove placeholder in the new tile position.
+    let placeHolderIndex = this.tiles.findIndex(
+      (tile) => tile.position.x == position.x && tile.position.y == position.y
+    );
+    this.tiles.splice(placeHolderIndex, 1);
 
     // Add new tile.
-    this.tiles.push({ position: position, tileIndex: index, isTile: true });
+    this.tiles.push({
+      position: position,
+      tileIndex: index,
+      isTile: true,
+      rotation: 0,
+      locked: true,
+    });
 
     // Add placeholders around new tile if there is empty space there.
     this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
@@ -89,7 +107,7 @@ export class GridComponent implements OnInit {
     this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
     this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
 
-    // Sort tiles for rendering.
+    // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
   }
 
@@ -107,7 +125,6 @@ export class GridComponent implements OnInit {
         this.SCALE_STEP,
         -sign * 0.05 * Math.abs(delta)
       );
-      let oldScale = this.scale;
       this.scale *= scaleChange;
       this.scale = this.clamp(this.scale, this.MIN_SCALE, this.MAX_SCALE);
 
@@ -147,6 +164,29 @@ export class GridComponent implements OnInit {
 
     this.isDragging = false;
     document.body.style.cursor = 'default';
+  }
+
+  mousePosToCoords(position: Coords): Coords {
+    // console.table({
+    //   mousePos: { x: position.x, y: position.y },
+    //   gridTranslate: { x: this.translateX + 25, y: this.translateY + 25 },
+    //   gridTranslateScaled: {
+    //     x: (this.translateX + 25) * this.scale,
+    //     y: (this.translateY + 25) * this.scale,
+    //   },
+    //   coords: {
+    //     x: Math.round((position.x - this.translateX - 25) / this.scale / 50),
+    //     y: Math.round((position.y / this.scale - this.translateY - 25) / 50),
+    //   },
+    //   scale: this.scale,
+    // });
+
+    let coords = {
+      x: Math.round((position.x - this.translateX - 25) / this.scale / 50),
+      y: Math.round((position.y / this.scale - this.translateY - 25) / 50),
+    };
+
+    return coords;
   }
 
   @HostListener('window:mousemove', ['$event'])
