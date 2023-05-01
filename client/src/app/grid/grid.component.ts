@@ -1,5 +1,6 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { SharedService } from '../shared.service';
 
 interface Coords {
   x: number;
@@ -39,14 +40,10 @@ export class GridComponent implements OnInit {
   lastMouseY = 0;
   isDragging = false;
 
-  constructor() {}
+  constructor(private sharedService: SharedService) {}
 
   ngOnInit(): void {
-    this.addTile('0', { x: 0, y: 0 });
-    this.addTile('2', { x: 1, y: 0 });
-    this.addTile('3', { x: 0, y: 1 });
-    this.addTile('4', { x: -1, y: 0 });
-    this.addTile('4', { x: 0, y: -1 });
+    this.addTile('40', 0, { x: 0, y: 0 });
   }
 
   addPlaceholder(coords: Coords[], position: Coords) {
@@ -70,7 +67,11 @@ export class GridComponent implements OnInit {
     }
   }
 
-  addTile(index: string, position: Coords) {
+  addTile(index: string | null, rotation: number, position: Coords) {
+    console.log(index);
+
+    if (!index) return;
+
     // Get all placeholder/tiles coords.
     let coords: Coords[] = this.tiles.map((tile) => tile.position);
 
@@ -97,7 +98,7 @@ export class GridComponent implements OnInit {
       position: position,
       tileIndex: index,
       isTile: true,
-      rotation: 0,
+      rotation: rotation,
       locked: true,
     });
 
@@ -125,6 +126,7 @@ export class GridComponent implements OnInit {
         this.SCALE_STEP,
         -sign * 0.05 * Math.abs(delta)
       );
+      let oldScale = this.scale;
       this.scale *= scaleChange;
       this.scale = this.clamp(this.scale, this.MIN_SCALE, this.MAX_SCALE);
 
@@ -144,16 +146,29 @@ export class GridComponent implements OnInit {
 
   @HostListener('window:mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
-    // Mouse button 1 = scroll wheel
-    if (event.button !== 1 || !this.isHovered) return;
-
+    // Mouse button 1 = scroll wheel; 2 = right click.
+    if (event.button === 0 || !this.isHovered) return;
     event.preventDefault();
 
-    this.lastMouseX = event.clientX;
-    this.lastMouseY = event.clientY;
+    if (event.button === 1) {
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
 
-    this.isDragging = true;
-    document.body.style.cursor = 'grabbing';
+      this.isDragging = true;
+      document.body.style.cursor = 'grabbing';
+    } else {
+      if (!this.sharedService.getSelectedTile()) return;
+
+      let coords = this.mousePosToCoords({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      this.addTile(
+        this.sharedService.getSelectedTile().tileIndex,
+        this.sharedService.getSelectedTile().rotation,
+        coords
+      );
+    }
   }
 
   @HostListener('window:mouseup', ['$event'])

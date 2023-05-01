@@ -1,9 +1,9 @@
 <div class="hand">
-  <mat-grid-list [cols]="hand.length">
-    <mat-grid-tile *ngFor="let cell of hand; let i = index">
-      <div class="cell">
-        <tile [tileIndex]="cell"></tile>
-      </div>
-    </mat-grid-tile>
-  </mat-grid-list>
+  <div
+    class="cell selected-{{ cell.index === selectedCell }}"
+    *ngFor="let cell of hand"
+    (click)="onCellClick(cell.index, cell.rot)"
+  >
+    <tile [tileIndex]="cell.index" [rotationAngle]="cell.rot"></tile>
+  </div>
 </div>

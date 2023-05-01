@@ -1,4 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { SharedService } from '../shared.service';
+
+interface Tile {
+  index: string;
+  rot: number;
+}
 
 @Component({
   selector: 'tile-hand',
@@ -6,8 +12,26 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./hand.component.less'],
 })
 export class HandComponent implements OnInit {
-  hand: string[] = ['31', '32', '33'];
-  constructor() {}
+  hand: Tile[] = [
+    { index: '31', rot: 0 },
+    { index: '32', rot: 0 },
+    { index: '33', rot: 0 },
+  ];
+  selectedCell: string | null = null;
+
+  constructor(private sharedService: SharedService) {}
 
   ngOnInit(): void {}
+
+  onCellClick(cell: string, rot: number) {
+    if (this.selectedCell === cell) this.selectedCell = null;
+    else this.selectedCell = cell;
+
+    this.sharedService.setSelectedTile({
+      tileIndex: this.selectedCell,
+      rotation: rot,
+    });
+
+    console.log(rot);
+  }
 }
