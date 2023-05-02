@@ -1,20 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TileEmptyComponent } from './tile-empty.component';
+import { HandTileComponent } from './hand-tile.component';
 
-describe('TileEmptyComponent', () => {
-  let component: TileEmptyComponent;
-  let fixture: ComponentFixture<TileEmptyComponent>;
+describe('HandTileComponent', () => {
+  let component: HandTileComponent;
+  let fixture: ComponentFixture<HandTileComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TileEmptyComponent ]
+      declarations: [ HandTileComponent ]
     })
     .compileComponents();
-  });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TileEmptyComponent);
+    fixture = TestBed.createComponent(HandTileComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

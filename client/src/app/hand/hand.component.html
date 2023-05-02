@@ -2,8 +2,8 @@
   <div
     class="cell selected-{{ cell.index === selectedCell }}"
     *ngFor="let cell of hand"
-    (click)="onCellClick(cell.index, cell.rot)"
+    (click)="onCellClick(cell.index)"
   >
-    <tile [tileIndex]="cell.index" [rotationAngle]="cell.rot"></tile>
+    <hand-tile [tileIndex]="cell.index"></hand-tile>
   </div>
 </div>

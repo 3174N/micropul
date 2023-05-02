@@ -9,20 +9,20 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
 import { GridComponent } from './grid/grid.component';
-import { TileEmptyComponent } from './tile-empty/tile-empty.component';
 import { TilePlaceholderComponent } from './tile-placeholder/tile-placeholder.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { HandComponent } from './hand/hand.component';
+import { HandTileComponent } from './hand-tile/hand-tile.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TileComponent,
     GridComponent,
-    TileEmptyComponent,
     TilePlaceholderComponent,
     HandComponent,
+    HandTileComponent,
   ],
   imports: [
     BrowserModule,
