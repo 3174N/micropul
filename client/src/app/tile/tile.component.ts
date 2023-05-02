@@ -1,5 +1,6 @@
 import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { SharedService } from '../shared.service';
 
 @Component({
   selector: 'tile',
@@ -16,7 +17,7 @@ export class TileComponent implements OnInit {
   readonly SCROLL_THRESH = 50;
   isHovered = false;
 
-  constructor() {}
+  constructor(private sharedService: SharedService) {}
 
   ngOnInit(): void {
     this.tilePath = '../../assets/tiles/tile_' + this.tileIndex + '.png';
@@ -28,6 +29,23 @@ export class TileComponent implements OnInit {
     if (!this.isHovered || this.locked) return;
 
     this.rotationAngle = (this.rotationAngle + 90) % 360;
+
+    if (this.sharedService.getSelectedTile().tileIndex == this.tileIndex)
+      this.sharedService.setSelectedTile({
+        tileIndex: this.tileIndex,
+        rotation: this.rotationAngle,
+      });
+  }
+
+  onCellClick() {
+    this.sharedService.setSelectedTile({
+      // Set tile index to null if the tile is already selected.
+      tileIndex:
+        this.sharedService.getSelectedTile().tileIndex == this.tileIndex
+          ? null
+          : this.tileIndex,
+      rotation: this.rotationAngle,
+    });
   }
 
   @HostListener('window:wheel', ['$event'])
@@ -42,6 +60,12 @@ export class TileComponent implements OnInit {
         this.rotationAngle = 360 - Math.abs(this.rotationAngle);
       if (this.rotationAngle > 360) this.rotationAngle %= 360;
     }
+
+    if (this.sharedService.getSelectedTile().tileIndex == this.tileIndex)
+      this.sharedService.setSelectedTile({
+        tileIndex: this.tileIndex,
+        rotation: this.rotationAngle,
+      });
   }
 
   @HostListener('mouseenter')

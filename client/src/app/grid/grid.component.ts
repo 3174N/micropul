@@ -68,8 +68,6 @@ export class GridComponent implements OnInit {
   }
 
   addTile(index: string | null, rotation: number, position: Coords) {
-    console.log(index);
-
     if (!index) return;
 
     // Get all placeholder/tiles coords.
@@ -151,13 +149,17 @@ export class GridComponent implements OnInit {
     event.preventDefault();
 
     if (event.button === 1) {
+      // Panning.
       this.lastMouseX = event.clientX;
       this.lastMouseY = event.clientY;
 
       this.isDragging = true;
       document.body.style.cursor = 'grabbing';
     } else {
+      // Cell placement.
       if (!this.sharedService.getSelectedTile()) return;
+
+      console.log(this.sharedService.getSelectedTile());
 
       let coords = this.mousePosToCoords({
         x: event.clientX,

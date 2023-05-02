@@ -24,14 +24,6 @@ export class HandComponent implements OnInit {
   ngOnInit(): void {}
 
   onCellClick(cell: string, rot: number) {
-    if (this.selectedCell === cell) this.selectedCell = null;
-    else this.selectedCell = cell;
-
-    this.sharedService.setSelectedTile({
-      tileIndex: this.selectedCell,
-      rotation: rot,
-    });
-
-    console.log(rot);
+    this.selectedCell = this.sharedService.getSelectedTile().tileIndex;
   }
 }
