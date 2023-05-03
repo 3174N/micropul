@@ -9,7 +9,8 @@ interface SelectedTile {
   providedIn: 'root',
 })
 export class SharedService {
-  selectedTile: SelectedTile = { tileIndex: null, rotation: 0 };
+  private selectedTile: SelectedTile = { tileIndex: null, rotation: 0 };
+  private hand: string[] = [];
 
   constructor() {}
 
@@ -18,5 +19,13 @@ export class SharedService {
   }
   getSelectedTile(): SelectedTile {
     return this.selectedTile;
+  }
+
+  setHand(hand: string[]) {
+    this.hand = hand;
+    console.log(hand, this.hand);
+  }
+  getHand(): string[] {
+    return this.hand;
   }
 }

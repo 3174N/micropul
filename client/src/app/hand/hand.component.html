@@ -1,9 +1,9 @@
 <div class="hand">
   <div
-    class="cell selected-{{ cell.index === selectedCell }}"
-    *ngFor="let cell of hand"
-    (click)="onCellClick(cell.index)"
+    class="cell selected-{{ cell === selectedCell }}"
+    *ngFor="let cell of getHand()"
+    (click)="onCellClick(cell)"
   >
-    <hand-tile [tileIndex]="cell.index"></hand-tile>
+    <hand-tile [tileIndex]="cell"></hand-tile>
   </div>
 </div>

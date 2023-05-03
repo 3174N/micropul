@@ -1,25 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { SharedService } from '../shared.service';
 
-interface Tile {
-  index: string;
-  rot: number;
-}
-
 @Component({
   selector: 'tile-hand',
   templateUrl: './hand.component.html',
   styleUrls: ['./hand.component.less'],
 })
 export class HandComponent implements OnInit {
-  hand: Tile[] = [
-    { index: '31', rot: 0 },
-    { index: '32', rot: 0 },
-    { index: '33', rot: 0 },
-  ];
   selectedCell: string | null = null;
 
-  constructor(private sharedService: SharedService) {}
+  constructor(private sharedService: SharedService) {
+    sharedService.setHand(['1', '2', '3']);
+  }
 
   ngOnInit(): void {}
 
@@ -28,5 +20,9 @@ export class HandComponent implements OnInit {
       this.sharedService.getSelectedTile().tileIndex == this.selectedCell
         ? null
         : this.sharedService.getSelectedTile().tileIndex;
+  }
+
+  getHand(): string[] {
+    return this.sharedService.getHand();
   }
 }

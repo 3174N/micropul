@@ -43,7 +43,7 @@ export class GridComponent implements OnInit {
   constructor(private sharedService: SharedService) {}
 
   ngOnInit(): void {
-    this.addTile('40', 0, { x: 0, y: 0 });
+    this.addTile('40', 0, { x: 0, y: 0 }, true);
   }
 
   addPlaceholder(coords: Coords[], position: Coords) {
@@ -67,7 +67,12 @@ export class GridComponent implements OnInit {
     }
   }
 
-  addTile(index: string | null, rotation: number, position: Coords) {
+  addTile(
+    index: string | null,
+    rotation: number,
+    position: Coords,
+    isFirstTile: boolean = false
+  ) {
     if (!index) return;
 
     // Get all placeholder/tiles coords.
@@ -99,6 +104,13 @@ export class GridComponent implements OnInit {
       rotation: rotation,
       locked: true,
     });
+
+    if (!isFirstTile) {
+      // Remove tile from hand.
+      let hand = this.sharedService.getHand();
+      hand.splice(hand.indexOf(index), 1);
+      this.sharedService.setHand(hand);
+    }
 
     // Add placeholders around new tile if there is empty space there.
     this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
