@@ -14,6 +14,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { HandComponent } from './hand/hand.component';
 import { HandTileComponent } from './hand-tile/hand-tile.component';
+import { SupplyComponent } from './supply/supply.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { HandTileComponent } from './hand-tile/hand-tile.component';
     TilePlaceholderComponent,
     HandComponent,
     HandTileComponent,
+    SupplyComponent,
   ],
   imports: [
     BrowserModule,
