@@ -11,6 +11,7 @@ interface SelectedTile {
 export class SharedService {
   private selectedTile: SelectedTile = { tileIndex: null, rotation: 0 };
   private hand: string[] = [];
+  private supply: string[] = [];
 
   constructor() {}
 
@@ -23,9 +24,15 @@ export class SharedService {
 
   setHand(hand: string[]) {
     this.hand = hand;
-    console.log(hand, this.hand);
   }
   getHand(): string[] {
     return this.hand;
+  }
+
+  setSupply(supply: string[]) {
+    this.supply = supply;
+  }
+  getSupply(): string[] {
+    return this.supply;
   }
 }

@@ -7,22 +7,23 @@ import { SharedService } from '../shared.service';
   styleUrls: ['./supply.component.less'],
 })
 export class SupplyComponent {
-  supply: string[] = ['1', '2', '3'];
+  getSupply(): string[] {
+    return this.sharedService.getSupply();
+  }
 
   constructor(private sharedService: SharedService) {}
 
   click() {
-    if (this.supply.length <= 0) return;
+    let supply = this.sharedService.getSupply();
+
+    if (supply.length <= 0) return;
 
     // Remove tile from supply and add it to hand.
-    let tile = this.supply[0];
-    this.supply.splice(0, 1);
+    let tile = supply[0];
+    supply.splice(0, 1);
     let hand = this.sharedService.getHand();
     hand.push(tile);
     this.sharedService.setHand(hand);
-  }
-
-  addTile(tile: string) {
-    this.supply.push(tile);
+    this.sharedService.setSupply(supply);
   }
 }

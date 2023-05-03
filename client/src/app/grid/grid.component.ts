@@ -33,8 +33,8 @@ export class GridComponent implements OnInit {
   isHovered = false;
 
   @Input() scale: number = 1;
-  @Input() translateX: number = window.innerWidth / 2 - 25;
-  @Input() translateY: number = window.innerHeight / 2 - 25;
+  @Input() translateX: number = window.innerWidth / 2 - 50;
+  @Input() translateY: number = window.innerHeight / 2 - 50;
 
   lastMouseX = 0;
   lastMouseY = 0;

@@ -9,9 +9,7 @@ import { SharedService } from '../shared.service';
 export class HandComponent implements OnInit {
   selectedCell: string | null = null;
 
-  constructor(private sharedService: SharedService) {
-    sharedService.setHand(['1', '2', '3']);
-  }
+  constructor(private sharedService: SharedService) {}
 
   ngOnInit(): void {}
 

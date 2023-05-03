@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { HandComponent } from './hand/hand.component';
 import { HandTileComponent } from './hand-tile/hand-tile.component';
 import { SupplyComponent } from './supply/supply.component';
+import { CoreComponent } from './core/core.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { SupplyComponent } from './supply/supply.component';
     HandComponent,
     HandTileComponent,
     SupplyComponent,
+    CoreComponent,
   ],
   imports: [
     BrowserModule,
