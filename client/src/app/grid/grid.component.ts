@@ -214,6 +214,35 @@ export class GridComponent implements OnInit {
   }
 
   mousePosToCoords(position: Coords): StoneCoords {
+    let x = (position.x - this.translateX - 25) / this.scale / 50;
+    let y = (position.y / this.scale - this.translateY - 25) / 50;
+    let coords = {
+      x: Math.round(x),
+      y: Math.round(y),
+    };
+
+    let remX = x - coords.x;
+    let remY = y - coords.y;
+
+    /*
+    | 0 = top left
+     | 1 = bottom left
+     | 2 = top right
+     | 3 = bottom right
+     |
+     | 0 2
+     | 1 3
+     */
+    let qrtr = 0;
+
+    if (remX < 0) {
+      if (remY < 0) qrtr = 0;
+      else qrtr = 1;
+    } else {
+      if (remY < 0) qrtr = 2;
+      else qrtr = 3;
+    }
+
     // console.table({
     //   mousePos: { x: position.x, y: position.y },
     //   gridTranslate: { x: this.translateX + 25, y: this.translateY + 25 },
@@ -222,39 +251,19 @@ export class GridComponent implements OnInit {
     //     y: (this.translateY + 25) * this.scale,
     //   },
     //   coords: {
-    //     x: Math.round((position.x - this.translateX - 25) / this.scale / 50),
-    //     y: Math.round((position.y / this.scale - this.translateY - 25) / 50),
+    //     x: x,
+    //     y: y,
     //   },
-    //   scale: this.scale,
+    //   coordsRounded: coords,
+    //   rem: {
+    //     x: remX,
+    //     y: remY,
+    //     qrtr: qrtr,
+    //   },
+    //   // scale: this.scale,
     // });
 
-    let x = (position.x - this.translateX - 25) / this.scale / 50;
-    let y = (position.y / this.scale - this.translateY - 25) / 50;
-    let coords = {
-      x: Math.round(x),
-      y: Math.round(y),
-    };
-
-    let remX = x % 50;
-    let remY = y % 50;
-
-    /*
-     | 0 = top left
-     | 1 = bottom left
-     | 2 = top right
-     | 3 = bottom right
-     |
-     | 0 2
-     | 1 3
-     */
-
-    if (remX < 0) {
-      if (remY < 0) return { coords: coords, qrtr: 0 };
-      return { coords: coords, qrtr: 1 };
-    } else {
-      if (remY < 0) return { coords: coords, qrtr: 2 };
-      return { coords: coords, qrtr: 3 };
-    }
+    return { coords: coords, qrtr: qrtr };
   }
 
   getOffset(qrtr: number): Coords {
