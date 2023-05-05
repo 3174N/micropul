@@ -28,6 +28,19 @@
           [rotationAngle]="tile.rotation"
         ></tile>
       </div>
+      <div
+        *ngFor="let stone of stones"
+        [style.top.px]="stone.coords.y * 51 + 1"
+        [style.left.px]="stone.coords.x * 51 + 1"
+        class="stones"
+      >
+        <img
+          src="../../assets/stone_blue.png"
+          class="stone"
+          [style.top.px]="getOffset(stone.qrtr).y"
+          [style.left.px]="getOffset(stone.qrtr).x"
+        />
+      </div>
     </div>
   </div>
 </div>

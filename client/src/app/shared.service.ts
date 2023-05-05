@@ -10,7 +10,12 @@ interface SelectedTile {
 })
 export class SharedService {
   private selectedTile: SelectedTile = { tileIndex: null, rotation: 0 };
+
+  private stoneSelected: boolean = false;
+  private stones: number = 3;
+
   private hand: string[] = [];
+
   private supply: string[] = [];
 
   constructor() {}
@@ -20,6 +25,19 @@ export class SharedService {
   }
   getSelectedTile(): SelectedTile {
     return this.selectedTile;
+  }
+
+  setStoneSelected(stoneSelected: boolean) {
+    this.stoneSelected = stoneSelected;
+  }
+  getStoneSelected(): boolean {
+    return this.stoneSelected;
+  }
+  setStones(stones: number) {
+    this.stones = stones;
+  }
+  getStones(): number {
+    return this.stones;
   }
 
   setHand(hand: string[]) {

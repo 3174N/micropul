@@ -16,6 +16,7 @@ import { HandComponent } from './hand/hand.component';
 import { HandTileComponent } from './hand-tile/hand-tile.component';
 import { SupplyComponent } from './supply/supply.component';
 import { CoreComponent } from './core/core.component';
+import { StonesComponent } from './stones/stones.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { CoreComponent } from './core/core.component';
     HandTileComponent,
     SupplyComponent,
     CoreComponent,
+    StonesComponent,
   ],
   imports: [
     BrowserModule,

@@ -7,6 +7,11 @@ interface Coords {
   y: number;
 }
 
+interface StoneCoords {
+  coords: Coords;
+  qrtr: number;
+}
+
 interface Tile {
   position: Coords;
   isTile: boolean; // Non-tile are places near tiles that can be placed on.
@@ -25,6 +30,7 @@ export class GridComponent implements OnInit {
   previewStyle: any = null;
 
   tiles: Tile[] = [];
+  stones: StoneCoords[] = [];
 
   readonly SCROLL_THRESH = 50;
   readonly MIN_SCALE = 0.5;
@@ -144,6 +150,12 @@ export class GridComponent implements OnInit {
     }
   }
 
+  addStone(coords: StoneCoords) {
+    this.stones.push(coords);
+    this.sharedService.setStones(this.sharedService.getStones() - 1);
+    this.sharedService.setStoneSelected(false);
+  }
+
   @HostListener('mouseenter')
   onMouseEnter() {
     this.isHovered = true;
@@ -156,9 +168,9 @@ export class GridComponent implements OnInit {
 
   @HostListener('window:mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
+    event.preventDefault();
     // Mouse button 1 = scroll wheel; 2 = right click.
     if (event.button === 0 || !this.isHovered) return;
-    event.preventDefault();
 
     if (event.button === 1) {
       // Panning.
@@ -168,20 +180,26 @@ export class GridComponent implements OnInit {
       this.isDragging = true;
       document.body.style.cursor = 'grabbing';
     } else {
-      // Cell placement.
-      if (!this.sharedService.getSelectedTile()) return;
-
-      console.log(this.sharedService.getSelectedTile());
-
-      let coords = this.mousePosToCoords({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      this.addTile(
-        this.sharedService.getSelectedTile().tileIndex,
-        this.sharedService.getSelectedTile().rotation,
-        coords
-      );
+      if (this.sharedService.getSelectedTile().tileIndex != null) {
+        // Cell placement.
+        let coords = this.mousePosToCoords({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        this.addTile(
+          this.sharedService.getSelectedTile().tileIndex,
+          this.sharedService.getSelectedTile().rotation,
+          coords.coords
+        );
+      } else if (this.sharedService.getStoneSelected()) {
+        // Stone placement.
+        let coords = this.mousePosToCoords({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        console.log(coords);
+        this.addStone(coords);
+      }
     }
   }
 
@@ -195,7 +213,7 @@ export class GridComponent implements OnInit {
     document.body.style.cursor = 'default';
   }
 
-  mousePosToCoords(position: Coords): Coords {
+  mousePosToCoords(position: Coords): StoneCoords {
     // console.table({
     //   mousePos: { x: position.x, y: position.y },
     //   gridTranslate: { x: this.translateX + 25, y: this.translateY + 25 },
@@ -210,12 +228,49 @@ export class GridComponent implements OnInit {
     //   scale: this.scale,
     // });
 
+    let x = (position.x - this.translateX - 25) / this.scale / 50;
+    let y = (position.y / this.scale - this.translateY - 25) / 50;
     let coords = {
-      x: Math.round((position.x - this.translateX - 25) / this.scale / 50),
-      y: Math.round((position.y / this.scale - this.translateY - 25) / 50),
+      x: Math.round(x),
+      y: Math.round(y),
     };
 
-    return coords;
+    let remX = x % 50;
+    let remY = y % 50;
+
+    /*
+     | 0 = top left
+     | 1 = bottom left
+     | 2 = top right
+     | 3 = bottom right
+     |
+     | 0 2
+     | 1 3
+     */
+
+    if (remX < 0) {
+      if (remY < 0) return { coords: coords, qrtr: 0 };
+      return { coords: coords, qrtr: 1 };
+    } else {
+      if (remY < 0) return { coords: coords, qrtr: 2 };
+      return { coords: coords, qrtr: 3 };
+    }
+  }
+
+  getOffset(qrtr: number): Coords {
+    switch (qrtr) {
+      case 0:
+        return { x: 0, y: 0 };
+      case 1:
+        return { x: 0, y: 27 };
+      case 2:
+        return { x: 27, y: 0 };
+      case 3:
+        return { x: 27, y: 27 };
+      default:
+        // Error
+        return { x: 0, y: 0 };
+    }
   }
 
   @HostListener('window:mousemove', ['$event'])
