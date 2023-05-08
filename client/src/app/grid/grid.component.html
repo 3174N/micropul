@@ -42,10 +42,20 @@
         />
       </div>
       <div *ngIf="hasMove">
-        <div class="confirm" (click)="confirmMove()">
-          🗸{{hasMove}}
+        <div
+          class="confirm"
+          (click)="confirmMove()"
+          [style.top.px]="movePosition.y * 51 + 2"
+          [style.left.px]="(movePosition.x + 1) * 51 + 2"
+        >
+          🗸
         </div>
-        <div class="cancel" (click)="cancelMove()">
+        <div
+          class="cancel"
+          (click)="cancelMove()"
+          [style.top.px]="movePosition.y * 51 + 2"
+          [style.left.px]="(movePosition.x - 1) * 51 + 2"
+        >
           X
         </div>
       </div>

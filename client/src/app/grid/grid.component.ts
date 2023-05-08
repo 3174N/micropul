@@ -47,6 +47,7 @@ export class GridComponent implements OnInit {
   isDragging: boolean = false;
 
   hasMove: boolean = false;
+  movePosition: Coords = { x: 0, y: 0 };
 
   constructor(private sharedService: SharedService) {}
 
@@ -113,6 +114,8 @@ export class GridComponent implements OnInit {
     if (!isFirstTile) {
       // Remove tile from hand.
       this.hasMove = true;
+      this.movePosition = position;
+
       let hand = this.sharedService.getHand();
       hand.splice(hand.indexOf(index), 1);
       this.sharedService.setHand(hand);
