@@ -101,12 +101,6 @@ export class GridComponent implements OnInit {
     // Cancel unconfirmed move.
     if (this.hasMove) this.cancelMove();
 
-    // Remove placeholder in the new tile position.
-    let placeHolderIndex = this.tiles.findIndex(
-      (tile) => tile.position.x == position.x && tile.position.y == position.y
-    );
-    this.tiles.splice(placeHolderIndex, 1);
-
     // Add new tile.
     this.tiles.push({
       position: position,
@@ -123,13 +117,13 @@ export class GridComponent implements OnInit {
       hand.splice(hand.indexOf(index), 1);
       this.sharedService.setHand(hand);
       this.sharedService.setSelectedTile({ tileIndex: null, rotation: 0 });
+    } else {
+      // Add placeholders around new tile if there is empty space there.
+      this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
+      this.addPlaceholder(coords, { x: position.x + 1, y: position.y });
+      this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
+      this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
     }
-
-    // Add placeholders around new tile if there is empty space there.
-    this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
-    this.addPlaceholder(coords, { x: position.x + 1, y: position.y });
-    this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
-    this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
 
     // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
@@ -142,6 +136,22 @@ export class GridComponent implements OnInit {
       (tile) => tile.isTile == true && tile.locked == false
     );
     this.tiles[tileIndex].locked = true;
+
+    let coords: Coords[] = this.tiles.map((tile) => tile.position);
+    let position = this.tiles[tileIndex].position;
+
+    // Remove placeholder in the new tile position.
+    let placeHolderIndex = this.tiles.findIndex(
+      (tile) => tile.position.x == position.x && tile.position.y == position.y
+    );
+    this.tiles.splice(placeHolderIndex, 1);
+
+    // Add placeholders around new tile if there is empty space there.
+    this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
+    this.addPlaceholder(coords, { x: position.x + 1, y: position.y });
+    this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
+    this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
+
     this.hasMove = false;
   }
 
