@@ -42,9 +42,11 @@ export class GridComponent implements OnInit {
   @Input() translateX: number = window.innerWidth / 2 - 50;
   @Input() translateY: number = window.innerHeight / 2 - 50;
 
-  lastMouseX = 0;
-  lastMouseY = 0;
-  isDragging = false;
+  lastMouseX: number = 0;
+  lastMouseY: number = 0;
+  isDragging: boolean = false;
+
+  hasMove: boolean = false;
 
   constructor(private sharedService: SharedService) {}
 
@@ -96,6 +98,9 @@ export class GridComponent implements OnInit {
     )
       return; // Tiles cannot be placed on spaces that are not placeholders.
 
+    // Cancel unconfirmed move.
+    if (this.hasMove) this.cancelMove();
+
     // Remove placeholder in the new tile position.
     let placeHolderIndex = this.tiles.findIndex(
       (tile) => tile.position.x == position.x && tile.position.y == position.y
@@ -108,14 +113,16 @@ export class GridComponent implements OnInit {
       tileIndex: index,
       isTile: true,
       rotation: rotation,
-      locked: true,
+      locked: isFirstTile, // First tile should be locked, the rest should not.
     });
 
     if (!isFirstTile) {
       // Remove tile from hand.
+      this.hasMove = true;
       let hand = this.sharedService.getHand();
       hand.splice(hand.indexOf(index), 1);
       this.sharedService.setHand(hand);
+      this.sharedService.setSelectedTile({ tileIndex: null, rotation: 0 });
     }
 
     // Add placeholders around new tile if there is empty space there.
@@ -126,6 +133,33 @@ export class GridComponent implements OnInit {
 
     // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
+  }
+
+  confirmMove() {
+    if (!this.hasMove) return;
+
+    let tileIndex = this.tiles.findIndex(
+      (tile) => tile.isTile == true && tile.locked == false
+    );
+    this.tiles[tileIndex].locked = true;
+    this.hasMove = false;
+  }
+
+  cancelMove() {
+    if (!this.hasMove) return;
+
+    let tileIndex = this.tiles.findIndex(
+      (tile) => tile.isTile == true && tile.locked == false
+    );
+    let tile = this.tiles.splice(tileIndex, 1)[0];
+
+    if (tile.tileIndex) {
+      let hand = this.sharedService.getHand();
+      hand.push(tile.tileIndex);
+      this.sharedService.setHand(hand);
+
+      this.hasMove = false;
+    }
   }
 
   clamp = (value: number, min: number, max: number) =>
@@ -197,7 +231,6 @@ export class GridComponent implements OnInit {
           x: event.clientX,
           y: event.clientY,
         });
-        console.log(coords);
         this.addStone(coords);
       }
     }
@@ -214,8 +247,10 @@ export class GridComponent implements OnInit {
   }
 
   mousePosToCoords(position: Coords): StoneCoords {
-    let x = (position.x - this.translateX - 25) / this.scale / 50;
-    let y = (position.y / this.scale - this.translateY - 25) / 50;
+    let x =
+      (position.x - this.translateX - 25 * this.scale) / (this.scale * 50);
+    let y =
+      (position.y - this.translateY - 25 * this.scale) / (50 * this.scale);
     let coords = {
       x: Math.round(x),
       y: Math.round(y),
@@ -246,10 +281,6 @@ export class GridComponent implements OnInit {
     // console.table({
     //   mousePos: { x: position.x, y: position.y },
     //   gridTranslate: { x: this.translateX + 25, y: this.translateY + 25 },
-    //   gridTranslateScaled: {
-    //     x: (this.translateX + 25) * this.scale,
-    //     y: (this.translateY + 25) * this.scale,
-    //   },
     //   coords: {
     //     x: x,
     //     y: y,
@@ -258,9 +289,9 @@ export class GridComponent implements OnInit {
     //   rem: {
     //     x: remX,
     //     y: remY,
-    //     qrtr: qrtr,
     //   },
-    //   // scale: this.scale,
+    //   qrtr: qrtr,
+    //   scale: this.scale,
     // });
 
     return { coords: coords, qrtr: qrtr };

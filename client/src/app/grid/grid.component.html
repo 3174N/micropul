@@ -24,7 +24,7 @@
         <tile
           *ngIf="tile.isTile"
           [tileIndex]="tile.tileIndex"
-          [locked]="true"
+          [locked]="tile.locked"
           [rotationAngle]="tile.rotation"
         ></tile>
       </div>
@@ -40,6 +40,14 @@
           [style.top.px]="getOffset(stone.qrtr).y"
           [style.left.px]="getOffset(stone.qrtr).x"
         />
+      </div>
+      <div *ngIf="hasMove">
+        <div class="confirm" (click)="confirmMove()">
+          🗸{{hasMove}}
+        </div>
+        <div class="cancel" (click)="cancelMove()">
+          X
+        </div>
       </div>
     </div>
   </div>
