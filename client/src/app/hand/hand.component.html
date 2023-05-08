@@ -1,6 +1,6 @@
 <div class="hand">
   <div
-    class="cell selected-{{ cell === selectedCell }}"
+    class="cell selected-{{ cell === getSelected() }}"
     *ngFor="let cell of getHand()"
     (click)="onCellClick(cell)"
   >

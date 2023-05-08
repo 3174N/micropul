@@ -167,6 +167,7 @@ export class GridComponent implements OnInit {
       let hand = this.sharedService.getHand();
       hand.push(tile.tileIndex);
       this.sharedService.setHand(hand);
+      this.sharedService.setSelectedTile({ tileIndex: null, rotation: 0 });
 
       this.hasMove = false;
     }

@@ -13,6 +13,11 @@ export class HandComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  getSelected(): string | null {
+    this.selectedCell = this.sharedService.getSelectedTile().tileIndex;
+    return this.selectedCell;
+  }
+
   onCellClick(cell: string) {
     this.selectedCell =
       this.sharedService.getSelectedTile().tileIndex == this.selectedCell
