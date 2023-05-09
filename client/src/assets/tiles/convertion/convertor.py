@@ -65,6 +65,9 @@ def draw(x, y, shape):
 
 
 for i in range(0, 48):
+    if i in (36, 37, 42, 43):
+        continue  # Do not touch big micropuls
+
     # Load the image file
     img = cv2.imread(f"../png/tile_{i}.png")
 
