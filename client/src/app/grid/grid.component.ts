@@ -319,13 +319,13 @@ export class GridComponent implements OnInit {
   getOffset(qrtr: number): Coords {
     switch (qrtr) {
       case 0:
-        return { x: 0, y: 0 };
+        return { x: 1, y: 1 };
       case 1:
-        return { x: 0, y: 27 };
+        return { x: 1, y: 26 };
       case 2:
-        return { x: 27, y: 0 };
+        return { x: 26, y: 1 };
       case 3:
-        return { x: 27, y: 27 };
+        return { x: 26, y: 26 };
       default:
         // Error
         return { x: 0, y: 0 };
