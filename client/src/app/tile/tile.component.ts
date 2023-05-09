@@ -20,7 +20,7 @@ export class TileComponent implements OnInit {
   constructor(private sharedService: SharedService) {}
 
   ngOnInit(): void {
-    this.tilePath = '../../assets/tiles/tile_' + this.tileIndex + '.png';
+    this.tilePath = '../../assets/tiles/svg/tile_' + this.tileIndex + '.svg';
   }
 
   onClick(event: MouseEvent) {

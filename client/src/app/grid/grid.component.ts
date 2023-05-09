@@ -1,4 +1,3 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { SharedService } from '../shared.service';
 
@@ -156,6 +155,9 @@ export class GridComponent implements OnInit {
     this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
 
     this.hasMove = false;
+
+    // Sort tiles for rendering (placeholders before tiles).
+    this.tiles.sort(this.sortTiles);
   }
 
   cancelMove() {
@@ -174,6 +176,9 @@ export class GridComponent implements OnInit {
 
       this.hasMove = false;
     }
+
+    // Sort tiles for rendering (placeholders before tiles).
+    this.tiles.sort(this.sortTiles);
   }
 
   clamp = (value: number, min: number, max: number) =>
