@@ -54,6 +54,12 @@ export class GridComponent implements OnInit {
     this.addTile('40', 0, { x: 0, y: 0 }, true);
   }
 
+  /**
+   * Adds placeholders near new tile.
+   *
+   * @param coords Coordinates of all tiles & placeholders.
+   * @param position New tile position.
+   */
   addPlaceholder(coords: Coords[], position: Coords) {
     if (!coords.some((coord) => coord.x == position.x && coord.y == position.y))
       this.tiles.push({
@@ -65,6 +71,12 @@ export class GridComponent implements OnInit {
       });
   }
 
+  /**
+   * Sorts tiles by tile < placeholders (used to render tiles above placeholders).
+   *
+   * @param a
+   * @param b
+   */
   sortTiles(a: Tile, b: Tile) {
     if (a.isTile && !b.isTile) {
       return 1; // a comes after b.
@@ -75,6 +87,14 @@ export class GridComponent implements OnInit {
     }
   }
 
+  /**
+   * Adds a new tile to grid.
+   *
+   * @param index Tile index.
+   * @param rotation Tile rotation.
+   * @param position New position.
+   * @param isFirstTile
+   */
   addTile(
     index: string | null,
     rotation: number,
@@ -131,6 +151,9 @@ export class GridComponent implements OnInit {
     this.tiles.sort(this.sortTiles);
   }
 
+  /**
+   * Confirms a move.
+   */
   confirmMove() {
     if (!this.hasMove) return;
 
@@ -160,6 +183,9 @@ export class GridComponent implements OnInit {
     this.tiles.sort(this.sortTiles);
   }
 
+  /**
+   * Cancels a move.
+   */
   cancelMove() {
     if (!this.hasMove) return;
 
