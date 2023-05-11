@@ -283,12 +283,26 @@ export class GridComponent implements OnInit {
 
   @HostListener('window:mouseup', ['$event'])
   onMouseUp(event: MouseEvent) {
-    if (event.button !== 1 || !this.isHovered) return;
-
     event.preventDefault();
 
-    this.isDragging = false;
-    document.body.style.cursor = 'default';
+    if (event.button === 1) {
+      if (!this.isHovered) return;
+
+      this.isDragging = false;
+      document.body.style.cursor = 'default';
+    } else if (event.button === 0) {
+      if (!this.sharedService.getSelectedTile().tileIndex) return;
+
+      let coords = this.mousePosToCoords({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      this.addTile(
+        this.sharedService.getSelectedTile().tileIndex,
+        this.sharedService.getSelectedTile().rotation,
+        coords.coords
+      );
+    }
   }
 
   mousePosToCoords(position: Coords): StoneCoords {

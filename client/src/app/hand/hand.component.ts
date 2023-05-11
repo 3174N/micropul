@@ -18,7 +18,7 @@ export class HandComponent implements OnInit {
     return this.selectedCell;
   }
 
-  onCellClick(cell: string) {
+  onCellClick() {
     this.selectedCell =
       this.sharedService.getSelectedTile().tileIndex == this.selectedCell
         ? null

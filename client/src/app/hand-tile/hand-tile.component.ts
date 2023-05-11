@@ -15,6 +15,14 @@ export class HandTileComponent {
   readonly SCROLL_THRESH = 50;
   isHovered = false;
 
+  @Input() isSelected: boolean = false;
+  translateX: number = 0;
+  translateY: number = 0;
+
+  lastMouseX: number = 0;
+  lastMouseY: number = 0;
+  isDragging: boolean = false;
+
   constructor(private sharedService: SharedService) {}
 
   ngOnInit(): void {
@@ -35,15 +43,48 @@ export class HandTileComponent {
       });
   }
 
-  onCellClick() {
+  onCellClick() {}
+
+  @HostListener('window:mousedown', ['$event'])
+  onMouseDown(event: MouseEvent) {
+    if (event.button !== 0 && !this.isHovered) return;
+
+    event.preventDefault();
+
     this.sharedService.setSelectedTile({
-      // Set tile index to null if the tile is already selected.
-      tileIndex:
-        this.sharedService.getSelectedTile().tileIndex == this.tileIndex
-          ? null
-          : this.tileIndex,
+      tileIndex: this.tileIndex,
       rotation: this.rotationAngle,
     });
+
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+
+    this.isDragging = true;
+    document.body.style.cursor = 'grabbing';
+  }
+
+  @HostListener('window:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent) {
+    if (event.button !== 0 || !this.isHovered) return;
+
+    event.preventDefault();
+
+    this.isDragging = false;
+    document.body.style.cursor = 'default';
+
+    this.isSelected = false;
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.isDragging) return;
+
+    const deltaX = event.clientX - this.lastMouseX;
+    const deltaY = event.clientY - this.lastMouseY;
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+    this.translateX += deltaX;
+    this.translateY += deltaY;
   }
 
   @HostListener('window:wheel', ['$event'])

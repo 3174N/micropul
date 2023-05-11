@@ -1,3 +1,18 @@
-<div class="tile" (contextmenu)="onClick($event)" (click)="onCellClick()">
+<div class="tile" (contextmenu)="onClick($event)" *ngIf="!isSelected">
+  <img [src]="tilePath" [ngClass]="'rotate-' + rotationAngle" />
+</div>
+
+<div
+  class="tile selected"
+  *ngIf="isSelected"
+  [ngStyle]="{
+      transform:
+        'translate(' +
+        translateX +
+        'px, ' +
+        translateY +
+        'px)'
+    }"
+>
   <img [src]="tilePath" [ngClass]="'rotate-' + rotationAngle" />
 </div>

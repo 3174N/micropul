@@ -1,9 +1,8 @@
 <div class="hand">
-  <div
-    class="cell selected-{{ cell === getSelected() }}"
-    *ngFor="let cell of getHand()"
-    (click)="onCellClick(cell)"
-  >
-    <hand-tile [tileIndex]="cell"></hand-tile>
+  <div class="cell" *ngFor="let cell of getHand()" (click)="onCellClick()">
+    <hand-tile
+      [isSelected]="cell === getSelected()"
+      [tileIndex]="cell"
+    ></hand-tile>
   </div>
 </div>
