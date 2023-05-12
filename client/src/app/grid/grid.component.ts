@@ -115,8 +115,10 @@ export class GridComponent implements OnInit {
           !tile.isTile
       ) &&
       coords.length > 0 // First tile can be placed without placeholder.
-    )
+    ) {
+      this.sharedService.setSelectedTile({ tileIndex: null, rotation: 0 });
       return; // Tiles cannot be placed on spaces that are not placeholders.
+    }
 
     // Cancel unconfirmed move.
     if (this.hasMove) this.cancelMove();
@@ -221,11 +223,10 @@ export class GridComponent implements OnInit {
         this.SCALE_STEP,
         -sign * 0.05 * Math.abs(delta)
       );
-      let oldScale = this.scale;
-      this.scale *= scaleChange;
-      this.scale = this.clamp(this.scale, this.MIN_SCALE, this.MAX_SCALE);
+      let newScale = this.scale * scaleChange;
+      newScale = this.clamp(newScale, this.MIN_SCALE, this.MAX_SCALE);
 
-      // TODO: Zoom from the middle of the screen.
+      this.scale = newScale;
     }
   }
 

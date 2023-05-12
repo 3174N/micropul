@@ -47,7 +47,9 @@ export class HandTileComponent {
 
   @HostListener('window:mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
-    if (event.button !== 0 && !this.isHovered) return;
+    console.log(this.isHovered);
+    console.log('test');
+    if (event.button !== 0 || !this.isHovered) return;
 
     event.preventDefault();
 
