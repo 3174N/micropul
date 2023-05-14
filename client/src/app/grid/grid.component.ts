@@ -1,5 +1,6 @@
 import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { SharedService } from '../shared.service';
+import tilesData from './tiles.json';
 
 interface Coords {
   x: number;
@@ -28,6 +29,8 @@ export class GridComponent implements OnInit {
   indexOver: number = -1;
   previewStyle: any = null;
 
+  tilesData: { [index: string]: number[] } = {};
+  tilesMicropulData: { [index: string]: number[] } = {};
   tiles: Tile[] = [];
   stones: StoneCoords[] = [];
 
@@ -52,6 +55,15 @@ export class GridComponent implements OnInit {
 
   ngOnInit(): void {
     this.addTile('40', 0, { x: 0, y: 0 }, true);
+    this.tilesData = tilesData;
+    for (const key in this.tilesData) {
+      if (this.tilesData.hasOwnProperty(key)) {
+        const newArray = this.tilesData[key].map((value) =>
+          value === 1 || value === 2 ? value : 0
+        );
+        this.tilesMicropulData[key] = newArray;
+      }
+    }
   }
 
   /**
@@ -103,6 +115,10 @@ export class GridComponent implements OnInit {
   ) {
     if (!index) return;
 
+    ////////////////////////
+    // Place tile on grid //
+    ////////////////////////
+
     // Get all placeholder/tiles coords.
     let coords: Coords[] = this.tiles.map((tile) => tile.position);
 
@@ -151,6 +167,88 @@ export class GridComponent implements OnInit {
 
     // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
+
+    if (isFirstTile) return;
+
+    ////////////////////////////
+    // Check if move is valid //
+    ////////////////////////////
+
+    // Get adjacent tiles.
+    let rightTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x + 1 &&
+        tile.position.y == position.y &&
+        tile.tileIndex
+    );
+    let leftTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x - 1 &&
+        tile.position.y == position.y &&
+        tile.tileIndex
+    );
+    let bottomTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x &&
+        tile.position.y + 1 == position.y &&
+        tile.tileIndex
+    );
+    let topTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x + 1 &&
+        tile.position.y - 1 == position.y &&
+        tile.tileIndex
+    );
+
+    // Check connectd micropuls.
+    let tileData = this.tilesMicropulData[index];
+    let hasValidConnection = false;
+    let hasInvalidConnection = false;
+
+    if (rightTile && !hasInvalidConnection) {
+      console.log(rightTile);
+      let rData = this.tilesMicropulData[rightTile.tileIndex!];
+      hasValidConnection =
+        tileData[1] == rData[0] ||
+        tileData[3] == rData[2] ||
+        hasValidConnection;
+      hasInvalidConnection =
+        (tileData[1] != 0 && rData[0] != 0 && tileData[1] != rData[0]) ||
+        (tileData[3] != 0 && rData[2] != 0 && tileData[3] != rData[2]);
+    }
+    if (leftTile && !hasInvalidConnection) {
+      let rData = this.tilesMicropulData[leftTile.tileIndex!];
+      hasValidConnection =
+        tileData[0] == rData[1] ||
+        tileData[2] == rData[3] ||
+        hasValidConnection;
+      hasInvalidConnection =
+        (tileData[0] != 0 && rData[1] != 0 && tileData[0] != rData[1]) ||
+        (tileData[2] != 0 && rData[3] != 0 && tileData[2] != rData[3]);
+    }
+    if (bottomTile && !hasInvalidConnection) {
+      let rData = this.tilesMicropulData[bottomTile.tileIndex!];
+      hasValidConnection =
+        tileData[2] == rData[0] ||
+        tileData[3] == rData[1] ||
+        hasValidConnection;
+      hasInvalidConnection =
+        (tileData[2] != 0 && rData[0] != 0 && tileData[2] != rData[0]) ||
+        (tileData[3] != 0 && rData[1] != 0 && tileData[3] != rData[1]);
+    }
+    if (topTile && !hasInvalidConnection) {
+      let rData = this.tilesMicropulData[topTile.tileIndex!];
+      hasValidConnection =
+        tileData[0] == rData[2] ||
+        tileData[1] == rData[3] ||
+        hasValidConnection;
+      hasInvalidConnection =
+        (tileData[0] != 0 && rData[2] != 0 && tileData[0] != rData[2]) ||
+        (tileData[1] != 0 && rData[3] != 0 && tileData[1] != rData[3]);
+    }
+    console.table({ hasValidConnection, hasInvalidConnection });
+
+    // If move is valid, check activated catalysts.
   }
 
   /**
