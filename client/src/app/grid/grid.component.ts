@@ -226,6 +226,18 @@ export class GridComponent implements OnInit {
       let newScale = this.scale * scaleChange;
       newScale = this.clamp(newScale, this.MIN_SCALE, this.MAX_SCALE);
 
+      let newPosition = {
+        x: this.translateX * newScale,
+        y: this.translateY * newScale,
+      };
+      let t1 = {
+        x: newPosition.x - this.translateX,
+        y: newPosition.y - this.translateY,
+      };
+
+      // this.translateX += t1.x;
+      // this.translateY += t1.y * newScale;
+
       this.scale = newScale;
     }
   }
@@ -311,9 +323,13 @@ export class GridComponent implements OnInit {
       (position.x - this.translateX - 25 * this.scale) / (this.scale * 50);
     let y =
       (position.y - this.translateY - 25 * this.scale) / (50 * this.scale);
+    // let coords = {
+    //   x: Math.round(x),
+    //   y: Math.round(y),
+    // };
     let coords = {
-      x: Math.round(x),
-      y: Math.round(y),
+      x: Math.round((position.x - this.translateX - 25) / this.scale / 50),
+      y: Math.round((position.y / this.scale - this.translateY - 25) / 50),
     };
 
     let remX = x - coords.x;
