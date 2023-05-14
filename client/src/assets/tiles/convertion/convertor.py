@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 import os
+import json
 
 empty = cv2.imread("./empty.png")
 white = cv2.imread("./white_circle.png")
@@ -64,6 +65,8 @@ def draw(x, y, shape):
             return f'<rect x="{posx - 8}" y="{posy - 1}" width="16" height="2" fill="black"/> <rect x="{posx - 1}" y="{posy - 8}" width="2" height="16" fill="black"/>'
 
 
+data = {}
+
 for i in range(0, 48):
     if i in (36, 37, 42, 43):
         continue  # Do not touch big micropuls
@@ -85,12 +88,19 @@ for i in range(0, 48):
     bottom_left = cv2.rotate(bottom_left, cv2.ROTATE_90_CLOCKWISE)
     bottom_right = cv2.rotate(bottom_right, cv2.ROTATE_180)
 
-    svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
-    svg += draw(0, 0, most_similar(top_left))
-    svg += draw(1, 0, most_similar(top_right))
-    svg += draw(0, 1, most_similar(bottom_left))
-    svg += draw(1, 1, most_similar(bottom_right))
-    svg += "</svg>"
+    # svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+    # svg += draw(0, 0, most_similar(top_left))
+    # svg += draw(1, 0, most_similar(top_right))
+    # svg += draw(0, 1, most_similar(bottom_left))
+    # svg += draw(1, 1, most_similar(bottom_right))
+    # svg += "</svg>"
 
-    with open(f'../svg/tile_{i}.svg', 'w') as svg_img:
-        svg_img.write(svg)
+    tl = most_similar(top_left)
+    tr = most_similar(top_right)
+    bl = most_similar(bottom_left)
+    br = most_similar(bottom_right)
+
+    data[i] = [tl, tr, bl, br]
+
+with open("./tiles.json", "w") as data_file:
+    data_file.write(json.dumps(data))

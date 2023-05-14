@@ -32,8 +32,8 @@ export class GridComponent implements OnInit {
   stones: StoneCoords[] = [];
 
   readonly SCROLL_THRESH = 50;
-  readonly MIN_SCALE = 0.5;
-  readonly MAX_SCALE = 10;
+  readonly MIN_SCALE = 1;
+  readonly MAX_SCALE = 5;
   readonly SCALE_STEP = 1.02;
   isHovered = false;
 
@@ -319,17 +319,15 @@ export class GridComponent implements OnInit {
   }
 
   mousePosToCoords(position: Coords): StoneCoords {
-    let x =
-      (position.x - this.translateX - 25 * this.scale) / (this.scale * 50);
-    let y =
-      (position.y - this.translateY - 25 * this.scale) / (50 * this.scale);
+    let x = (position.x - this.translateX - 25) / this.scale / 50;
+    let y = (position.y / this.scale - this.translateY - 25) / 50;
     // let coords = {
     //   x: Math.round(x),
     //   y: Math.round(y),
     // };
     let coords = {
-      x: Math.round((position.x - this.translateX - 25) / this.scale / 50),
-      y: Math.round((position.y / this.scale - this.translateY - 25) / 50),
+      x: Math.round(x),
+      y: Math.round(y),
     };
 
     let remX = x - coords.x;
