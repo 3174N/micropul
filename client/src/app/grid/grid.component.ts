@@ -202,51 +202,39 @@ export class GridComponent implements OnInit {
 
     // Check connectd micropuls.
     let tileData = this.tilesMicropulData[index];
-    let hasValidConnection = false;
-    let hasInvalidConnection = false;
+    let moveValid = {
+      hasValidConnection: false,
+      hasInvalidConnection: false,
+    };
 
-    if (rightTile && !hasInvalidConnection) {
-      console.log(rightTile);
-      let rData = this.tilesMicropulData[rightTile.tileIndex!];
-      hasValidConnection =
-        tileData[1] == rData[0] ||
-        tileData[3] == rData[2] ||
-        hasValidConnection;
-      hasInvalidConnection =
-        (tileData[1] != 0 && rData[0] != 0 && tileData[1] != rData[0]) ||
-        (tileData[3] != 0 && rData[2] != 0 && tileData[3] != rData[2]);
-    }
-    if (leftTile && !hasInvalidConnection) {
-      let rData = this.tilesMicropulData[leftTile.tileIndex!];
-      hasValidConnection =
-        tileData[0] == rData[1] ||
-        tileData[2] == rData[3] ||
-        hasValidConnection;
-      hasInvalidConnection =
-        (tileData[0] != 0 && rData[1] != 0 && tileData[0] != rData[1]) ||
-        (tileData[2] != 0 && rData[3] != 0 && tileData[2] != rData[3]);
-    }
-    if (bottomTile && !hasInvalidConnection) {
-      let rData = this.tilesMicropulData[bottomTile.tileIndex!];
-      hasValidConnection =
-        tileData[2] == rData[0] ||
-        tileData[3] == rData[1] ||
-        hasValidConnection;
-      hasInvalidConnection =
-        (tileData[2] != 0 && rData[0] != 0 && tileData[2] != rData[0]) ||
-        (tileData[3] != 0 && rData[1] != 0 && tileData[3] != rData[1]);
-    }
-    if (topTile && !hasInvalidConnection) {
-      let rData = this.tilesMicropulData[topTile.tileIndex!];
-      hasValidConnection =
-        tileData[0] == rData[2] ||
-        tileData[1] == rData[3] ||
-        hasValidConnection;
-      hasInvalidConnection =
-        (tileData[0] != 0 && rData[2] != 0 && tileData[0] != rData[2]) ||
-        (tileData[1] != 0 && rData[3] != 0 && tileData[1] != rData[3]);
-    }
-    console.table({ hasValidConnection, hasInvalidConnection });
+    const checkMove = (
+      sTile: Tile | undefined,
+      a1: number,
+      a2: number,
+      b1: number,
+      b2: number
+    ) => {
+      if (!sTile) return;
+
+      let tData = this.tilesMicropulData[sTile.tileIndex!];
+      let data = tileData;
+
+      let hasValidConnection = data[a1] == tData[a2] || data[b1] == tData[b2];
+      let hasInvalidConnection =
+        (data[a1] != 0 && tData[a2] != 0 && data[a1] != tData[a2]) ||
+        (data[b1] != 0 && tData[b2] != 0 && data[b1] != tData[b2]);
+
+      moveValid.hasValidConnection =
+        hasValidConnection || moveValid.hasValidConnection;
+      moveValid.hasInvalidConnection =
+        hasInvalidConnection || moveValid.hasInvalidConnection;
+    };
+
+    checkMove(rightTile, 1, 0, 3, 2);
+    checkMove(leftTile, 0, 1, 2, 3);
+    checkMove(bottomTile, 2, 0, 3, 1);
+    checkMove(topTile, 0, 2, 1, 3);
+    console.table(moveValid);
 
     // If move is valid, check activated catalysts.
   }
