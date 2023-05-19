@@ -172,7 +172,13 @@ export class GridComponent implements OnInit {
     if (isFirstTile) return;
 
     // Check if move is valid
-    this.isMoveValid = this.checkMove(index, position);
+    this.isMoveValid = this.checkMove({
+      tileIndex: index,
+      rotation: rotation,
+      position: position,
+      isTile: true,
+      locked: false,
+    });
 
     // If move is valid, check activated catalysts.
     // TODO
@@ -183,8 +189,11 @@ export class GridComponent implements OnInit {
    *
    * @param index New tile index.
    * @param position New tile position.
+   * @return True if move is valid.
    */
-  checkMove(index: string, position: Coords) {
+  checkMove(tile: Tile): boolean {
+    let position = tile.position;
+
     // Get adjacent tiles.
     let rightTile = this.tiles.find(
       (tile) =>
@@ -211,14 +220,27 @@ export class GridComponent implements OnInit {
         tile.tileIndex
     );
 
-    // Check connectd micropuls.
-    let tileData = this.tilesMicropulData[index];
+    let tileData = this.tilesMicropulData[tile.tileIndex!];
+
+    // Rotate tile.
+    const rotate90 = (grid: number[]): number[] => {
+      const rotatedGrid = [];
+      rotatedGrid[0] = grid[2];
+      rotatedGrid[1] = grid[0];
+      rotatedGrid[2] = grid[3];
+      rotatedGrid[3] = grid[1];
+      return rotatedGrid;
+    };
+
+    for (let i = 0; i < tile.rotation / 90; i++) tileData = rotate90(tileData);
+
     let moveValid = {
       hasValidConnection: false,
       hasInvalidConnection: false,
     };
 
-    const checkMove = (
+    // Check connectd micropuls.
+    const checkSide = (
       sTile: Tile | undefined,
       a1: number,
       a2: number,
@@ -241,10 +263,10 @@ export class GridComponent implements OnInit {
         hasInvalidConnection || moveValid.hasInvalidConnection;
     };
 
-    checkMove(rightTile, 1, 0, 3, 2);
-    checkMove(leftTile, 0, 1, 2, 3);
-    checkMove(bottomTile, 2, 0, 3, 1);
-    checkMove(topTile, 0, 2, 1, 3);
+    checkSide(rightTile, 1, 0, 3, 2);
+    checkSide(leftTile, 0, 1, 2, 3);
+    checkSide(bottomTile, 2, 0, 3, 1);
+    checkSide(topTile, 0, 2, 1, 3);
 
     return moveValid.hasValidConnection && !moveValid.hasInvalidConnection;
   }
