@@ -50,6 +50,7 @@ export class GridComponent implements OnInit {
 
   hasMove: boolean = false;
   movePosition: Coords = { x: 0, y: 0 };
+  isMoveValid: boolean = false;
 
   constructor(private sharedService: SharedService) {}
 
@@ -170,10 +171,20 @@ export class GridComponent implements OnInit {
 
     if (isFirstTile) return;
 
-    ////////////////////////////
-    // Check if move is valid //
-    ////////////////////////////
+    // Check if move is valid
+    this.isMoveValid = this.checkMove(index, position);
 
+    // If move is valid, check activated catalysts.
+    // TODO
+  }
+
+  /**
+   * Checks if a move is valid.
+   *
+   * @param index New tile index.
+   * @param position New tile position.
+   */
+  checkMove(index: string, position: Coords) {
     // Get adjacent tiles.
     let rightTile = this.tiles.find(
       (tile) =>
@@ -234,9 +245,8 @@ export class GridComponent implements OnInit {
     checkMove(leftTile, 0, 1, 2, 3);
     checkMove(bottomTile, 2, 0, 3, 1);
     checkMove(topTile, 0, 2, 1, 3);
-    console.table(moveValid);
 
-    // If move is valid, check activated catalysts.
+    return moveValid.hasValidConnection && !moveValid.hasInvalidConnection;
   }
 
   /**

@@ -43,6 +43,7 @@
       </div>
       <div *ngIf="hasMove">
         <div
+          *ngIf="isMoveValid"
           class="confirm"
           (click)="confirmMove()"
           [style.top.px]="movePosition.y * 51 + 2"
