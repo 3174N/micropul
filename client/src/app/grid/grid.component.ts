@@ -252,6 +252,8 @@ export class GridComponent implements OnInit {
       let tData = this.tilesMicropulData[sTile.tileIndex!];
       let data = tileData;
 
+      if (tData.length === 2) b1 = b2 = 0; // Big micropul.
+
       let hasValidConnection = data[a1] == tData[a2] || data[b1] == tData[b2];
       let hasInvalidConnection =
         (data[a1] != 0 && tData[a2] != 0 && data[a1] != tData[a2]) ||
@@ -263,10 +265,18 @@ export class GridComponent implements OnInit {
         hasInvalidConnection || moveValid.hasInvalidConnection;
     };
 
-    checkSide(rightTile, 1, 0, 3, 2);
-    checkSide(leftTile, 0, 1, 2, 3);
-    checkSide(bottomTile, 2, 0, 3, 1);
-    checkSide(topTile, 0, 2, 1, 3);
+    if (tileData.length === 4) {
+      checkSide(rightTile, 1, 0, 3, 2);
+      checkSide(leftTile, 0, 1, 2, 3);
+      checkSide(bottomTile, 2, 0, 3, 1);
+      checkSide(topTile, 0, 2, 1, 3);
+    } else {
+      // Big micropul.
+      checkSide(rightTile, 0, 0, 3, 2);
+      checkSide(leftTile, 0, 0, 2, 3);
+      checkSide(bottomTile, 0, 0, 3, 1);
+      checkSide(topTile, 0, 0, 1, 3);
+    }
 
     return moveValid.hasValidConnection && !moveValid.hasInvalidConnection;
   }
