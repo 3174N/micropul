@@ -250,17 +250,10 @@ export class GridComponent implements OnInit {
       if (!sTile) return;
 
       let tData = this.tilesMicropulData[sTile.tileIndex!];
+      for (let i = 0; i < sTile.rotation / 90; i++) tData = rotate90(tData);
       let data = tileData;
 
       if (tData.length === 2) b1 = b2 = 0; // Big micropul.
-
-      console.table({
-        data,
-        tData,
-        a: [data[a1], data[b1]],
-        b: [tData[a2], tData[b2]],
-        values: [a1, a2, b1, b2],
-      });
 
       let hasValidConnection = data[a1] == tData[a2] || data[b1] == tData[b2];
       let hasInvalidConnection =
@@ -319,6 +312,13 @@ export class GridComponent implements OnInit {
 
     // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
+
+    // Stones CCA
+    this.stones.forEach((stone) => {
+      let component: StoneCoords[] = [];
+      this.stoneCCA({ coords: stone.coords, qrtr: stone.qrtr }, component);
+      console.log(component);
+    });
   }
 
   /**
@@ -475,16 +475,16 @@ export class GridComponent implements OnInit {
      | 2 = top right
      | 3 = bottom right
      |
-     | 0 2
-     | 1 3
+     | 0 1
+     | 2 3
      */
     let qrtr = 0;
 
     if (remX < 0) {
       if (remY < 0) qrtr = 0;
-      else qrtr = 1;
+      else qrtr = 2;
     } else {
-      if (remY < 0) qrtr = 2;
+      if (remY < 0) qrtr = 1;
       else qrtr = 3;
     }
 
@@ -512,9 +512,9 @@ export class GridComponent implements OnInit {
       case 0:
         return { x: 1, y: 1 };
       case 1:
-        return { x: 1, y: 26 };
-      case 2:
         return { x: 26, y: 1 };
+      case 2:
+        return { x: 1, y: 26 };
       case 3:
         return { x: 26, y: 26 };
       default:
@@ -542,5 +542,110 @@ export class GridComponent implements OnInit {
 
     tile.rotation = (tile.rotation + 90) % 360;
     this.isMoveValid = this.checkMove(tile);
+  }
+
+  stoneCCA(coords: StoneCoords, component: StoneCoords[]) {
+    if (
+      component.some(
+        (coord) =>
+          coord.coords.x == coords.coords.x &&
+          coord.coords.y == coords.coords.y &&
+          coord.qrtr == coords.qrtr
+      )
+    )
+      return;
+
+    console.log(coords);
+    component.push(coords);
+
+    let position = coords.coords;
+
+    // Get adjacent tiles.
+    let rightTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x + 1 &&
+        tile.position.y == position.y &&
+        tile.tileIndex
+    );
+    let leftTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x - 1 &&
+        tile.position.y == position.y &&
+        tile.tileIndex
+    );
+    let bottomTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x &&
+        tile.position.y + 1 == position.y &&
+        tile.tileIndex
+    );
+    let topTile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x + 1 &&
+        tile.position.y - 1 == position.y &&
+        tile.tileIndex
+    );
+
+    let tile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x &&
+        tile.position.y == position.y &&
+        tile.tileIndex
+    )!;
+    let tileData = this.tilesMicropulData[tile.tileIndex!];
+
+    // Rotate tile.
+    const rotate90 = (grid: number[]): number[] => {
+      const rotatedGrid = [];
+      rotatedGrid[0] = grid[2];
+      rotatedGrid[1] = grid[0];
+      rotatedGrid[2] = grid[3];
+      rotatedGrid[3] = grid[1];
+      return rotatedGrid;
+    };
+
+    for (let i = 0; i < tile.rotation / 90; i++) tileData = rotate90(tileData);
+
+    const checkAdjacentMicropul = (
+      tile: Tile | undefined,
+      qrtr: number,
+      micropul: number
+    ) => {
+      if (tile) {
+        let data = this.tilesMicropulData[tile.tileIndex!];
+        for (let i = 0; i < tile.rotation / 90; i++) data = rotate90(data);
+        if (data[qrtr] == micropul)
+          this.stoneCCA({ coords: tile.position, qrtr: qrtr }, component);
+      }
+    };
+
+    const checkAdjacent = (
+      tileA: Tile | undefined,
+      tileB: Tile | undefined,
+      aQrtr: number,
+      bQrtr: number
+    ) => {
+      checkAdjacentMicropul(tileA, aQrtr, micropul);
+      checkAdjacentMicropul(tileB, bQrtr, micropul);
+      checkAdjacentMicropul(tile, aQrtr, micropul);
+      checkAdjacentMicropul(tile, bQrtr, micropul);
+    };
+
+    let micropul = tileData[coords.qrtr];
+    switch (coords.qrtr) {
+      case 0:
+        checkAdjacent(topTile, leftTile, 2, 1);
+        break;
+      case 1:
+        console.log('sdf');
+        checkAdjacent(topTile, rightTile, 3, 0);
+        break;
+      case 2:
+        checkAdjacent(bottomTile, leftTile, 0, 3);
+        break;
+      case 3:
+        checkAdjacent(bottomTile, rightTile, 1, 2);
+        break;
+    }
   }
 }
