@@ -26,6 +26,7 @@
           [tileIndex]="tile.tileIndex"
           [locked]="tile.locked"
           [rotationAngle]="tile.rotation"
+          (contextmenu)="onTileClick($event, tile)"
         ></tile>
       </div>
       <div

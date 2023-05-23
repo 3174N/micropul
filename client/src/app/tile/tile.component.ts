@@ -23,31 +23,6 @@ export class TileComponent implements OnInit {
     this.tilePath = '../../assets/tiles/svg/tile_' + this.tileIndex + '.svg';
   }
 
-  onClick(event: MouseEvent) {
-    event.preventDefault();
-
-    if (!this.isHovered || this.locked) return;
-
-    this.rotationAngle = (this.rotationAngle + 90) % 360;
-
-    if (this.sharedService.getSelectedTile().tileIndex == this.tileIndex)
-      this.sharedService.setSelectedTile({
-        tileIndex: this.tileIndex,
-        rotation: this.rotationAngle,
-      });
-  }
-
-  onCellClick() {
-    this.sharedService.setSelectedTile({
-      // Set tile index to null if the tile is already selected.
-      tileIndex:
-        this.sharedService.getSelectedTile().tileIndex == this.tileIndex
-          ? null
-          : this.tileIndex,
-      rotation: this.rotationAngle,
-    });
-  }
-
   @HostListener('window:wheel', ['$event'])
   onScroll(event: WheelEvent) {
     if (!this.isHovered || this.locked) return;

@@ -534,4 +534,13 @@ export class GridComponent implements OnInit {
     this.translateX += deltaX / this.scale;
     this.translateY += deltaY / this.scale;
   }
+
+  onTileClick(event: MouseEvent, tile: Tile) {
+    event.preventDefault();
+
+    if (tile.locked) return;
+
+    tile.rotation = (tile.rotation + 90) % 360;
+    this.isMoveValid = this.checkMove(tile);
+  }
 }
