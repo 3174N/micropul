@@ -234,6 +234,7 @@ export class GridComponent implements OnInit {
 
       if (tData.length === 2) b1 = b2 = 0; // Big micropul.
 
+      console.log(data, tData);
       let hasValidConnection = data[a1] == tData[a2] || data[b1] == tData[b2];
       let hasInvalidConnection =
         (data[a1] != 0 && tData[a2] != 0 && data[a1] != tData[a2]) ||
@@ -248,14 +249,14 @@ export class GridComponent implements OnInit {
     if (tileData.length === 4) {
       checkSide(rightTile, 1, 0, 3, 2);
       checkSide(leftTile, 0, 1, 2, 3);
-      checkSide(topTile, 2, 0, 3, 1);
-      checkSide(bottomTile, 0, 2, 1, 3);
+      checkSide(topTile, 0, 2, 1, 3);
+      checkSide(bottomTile, 2, 0, 3, 1);
     } else {
       // Big micropul.
       checkSide(rightTile, 0, 0, 0, 2);
       checkSide(leftTile, 0, 1, 0, 3);
-      checkSide(topTile, 0, 0, 0, 1);
-      checkSide(bottomTile, 0, 2, 0, 3);
+      checkSide(topTile, 0, 2, 0, 3);
+      checkSide(bottomTile, 0, 0, 0, 1);
     }
 
     return moveValid.hasValidConnection && !moveValid.hasInvalidConnection;
@@ -539,13 +540,13 @@ export class GridComponent implements OnInit {
     let bottomTile = this.tiles.find(
       (tile) =>
         tile.position.x == position.x &&
-        tile.position.y + 1 == position.y &&
+        tile.position.y == position.y + 1 &&
         tile.tileIndex,
     );
     let topTile = this.tiles.find(
       (tile) =>
-        tile.position.x == position.x + 1 &&
-        tile.position.y - 1 == position.y &&
+        tile.position.x == position.x &&
+        tile.position.y == position.y - 1 &&
         tile.tileIndex,
     );
 
@@ -631,7 +632,6 @@ export class GridComponent implements OnInit {
         checkAdjacent(topTile, leftTile, 2, 1);
         break;
       case 1:
-        console.log('sdf');
         checkAdjacent(topTile, rightTile, 3, 0);
         break;
       case 2:
