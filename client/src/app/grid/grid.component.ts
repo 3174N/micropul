@@ -33,6 +33,7 @@ export class GridComponent implements OnInit {
   tilesMicropulData: { [index: string]: number[] } = {};
   tiles: Tile[] = [];
   stones: StoneCoords[] = [];
+  stonesCCA: StoneCoords[] = [];
 
   readonly SCROLL_THRESH = 50;
   readonly MIN_SCALE = 1;
@@ -234,7 +235,6 @@ export class GridComponent implements OnInit {
 
       if (tData.length === 2) b1 = b2 = 0; // Big micropul.
 
-      console.log(data, tData);
       let hasValidConnection = data[a1] == tData[a2] || data[b1] == tData[b2];
       let hasInvalidConnection =
         (data[a1] != 0 && tData[a2] != 0 && data[a1] != tData[a2]) ||
@@ -294,10 +294,14 @@ export class GridComponent implements OnInit {
     this.tiles.sort(this.sortTiles);
 
     // Stones CCA
+    this.updateStonesCCA();
+  }
+
+  updateStonesCCA() {
     this.stones.forEach((stone) => {
       let component: StoneCoords[] = [];
       this.stoneCCA({ coords: stone.coords, qrtr: stone.qrtr }, component);
-      console.log(component);
+      this.stonesCCA = component;
     });
   }
 
@@ -362,6 +366,7 @@ export class GridComponent implements OnInit {
     this.stones.push(coords);
     this.sharedService.setStones(this.sharedService.getStones() - 1);
     this.sharedService.setStoneSelected(false);
+    this.updateStonesCCA();
   }
 
   @HostListener('mouseenter')
@@ -569,7 +574,6 @@ export class GridComponent implements OnInit {
     )
       return;
 
-    console.log(coords);
     component.push(coords);
 
     let position = coords.coords;
@@ -608,9 +612,17 @@ export class GridComponent implements OnInit {
     ) => {
       if (tile) {
         let data = this.tilesMicropulData[tile.tileIndex!];
-        for (let i = 0; i < tile.rotation / 90; i++) data = rotate90(data);
-        if (data[qrtr] == micropul)
-          this.stoneCCA({ coords: tile.position, qrtr: qrtr }, component);
+        if (data.length == 2) {
+          if (data[0] != micropul) return;
+          this.stoneCCA({ coords: tile.position, qrtr: 0 }, component);
+          this.stoneCCA({ coords: tile.position, qrtr: 1 }, component);
+          this.stoneCCA({ coords: tile.position, qrtr: 2 }, component);
+          this.stoneCCA({ coords: tile.position, qrtr: 3 }, component);
+        } else {
+          for (let i = 0; i < tile.rotation / 90; i++) data = rotate90(data);
+          if (data[qrtr] == micropul)
+            this.stoneCCA({ coords: tile.position, qrtr: qrtr }, component);
+        }
       }
     };
 
@@ -626,7 +638,7 @@ export class GridComponent implements OnInit {
       checkAdjacentMicropul(tile, bQrtr, micropul);
     };
 
-    let micropul = tileData[coords.qrtr];
+    let micropul = tileData.length != 2 ? tileData[coords.qrtr] : tileData[0];
     switch (coords.qrtr) {
       case 0:
         checkAdjacent(topTile, leftTile, 2, 1);
