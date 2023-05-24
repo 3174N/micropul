@@ -563,7 +563,7 @@ export class GridComponent implements OnInit {
     };
   }
 
-  stoneCCA(coords: StoneCoords, component: StoneCoords[]) {
+  stoneCCA(coords: StoneCoords, component: StoneCoords[]): boolean {
     if (
       component.some(
         (coord) =>
@@ -605,6 +605,8 @@ export class GridComponent implements OnInit {
 
     for (let i = 0; i < tile.rotation / 90; i++) tileData = rotate90(tileData);
 
+    let isOpen = false;
+
     const checkAdjacentMicropul = (
       tile: Tile | undefined,
       qrtr: number,
@@ -614,15 +616,20 @@ export class GridComponent implements OnInit {
         let data = this.tilesMicropulData[tile.tileIndex!];
         if (data.length == 2) {
           if (data[0] != micropul) return;
-          this.stoneCCA({ coords: tile.position, qrtr: 0 }, component);
-          this.stoneCCA({ coords: tile.position, qrtr: 1 }, component);
-          this.stoneCCA({ coords: tile.position, qrtr: 2 }, component);
-          this.stoneCCA({ coords: tile.position, qrtr: 3 }, component);
+
+          isOpen =
+            isOpen ||
+            this.stoneCCA({ coords: tile.position, qrtr: 0 }, component) ||
+            this.stoneCCA({ coords: tile.position, qrtr: 1 }, component) ||
+            this.stoneCCA({ coords: tile.position, qrtr: 2 }, component) ||
+            this.stoneCCA({ coords: tile.position, qrtr: 3 }, component);
         } else {
           for (let i = 0; i < tile.rotation / 90; i++) data = rotate90(data);
           if (data[qrtr] == micropul)
             this.stoneCCA({ coords: tile.position, qrtr: qrtr }, component);
         }
+      } else {
+        isOpen = true;
       }
     };
 
@@ -653,5 +660,7 @@ export class GridComponent implements OnInit {
         checkAdjacent(bottomTile, rightTile, 1, 2);
         break;
     }
+
+    return isOpen;
   }
 }
