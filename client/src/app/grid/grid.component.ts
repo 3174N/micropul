@@ -61,7 +61,7 @@ export class GridComponent implements OnInit {
     for (const key in this.tilesData) {
       if (this.tilesData.hasOwnProperty(key)) {
         const newArray = this.tilesData[key].map((value) =>
-          value === 1 || value === 2 ? value : 0,
+          value === 1 || value === 2 ? value : 0
         );
         this.tilesMicropulData[key] = newArray;
       }
@@ -113,7 +113,7 @@ export class GridComponent implements OnInit {
     index: string | null,
     rotation: number,
     position: Coords,
-    isFirstTile: boolean = false,
+    isFirstTile: boolean = false
   ) {
     if (!index) return;
 
@@ -130,7 +130,7 @@ export class GridComponent implements OnInit {
         (tile) =>
           tile.position.x == position.x &&
           tile.position.y == position.y &&
-          !tile.isTile,
+          !tile.isTile
       ) &&
       coords.length > 0 // First tile can be placed without placeholder.
     ) {
@@ -225,7 +225,7 @@ export class GridComponent implements OnInit {
       a1: number,
       a2: number,
       b1: number,
-      b2: number,
+      b2: number
     ) => {
       if (!sTile) return;
 
@@ -269,7 +269,7 @@ export class GridComponent implements OnInit {
     if (!this.hasMove) return;
 
     let tileIndex = this.tiles.findIndex(
-      (tile) => tile.isTile == true && tile.locked == false,
+      (tile) => tile.isTile == true && tile.locked == false
     );
     this.tiles[tileIndex].locked = true;
 
@@ -278,7 +278,7 @@ export class GridComponent implements OnInit {
 
     // Remove placeholder in the new tile position.
     let placeHolderIndex = this.tiles.findIndex(
-      (tile) => tile.position.x == position.x && tile.position.y == position.y,
+      (tile) => tile.position.x == position.x && tile.position.y == position.y
     );
     this.tiles.splice(placeHolderIndex, 1);
 
@@ -313,7 +313,7 @@ export class GridComponent implements OnInit {
     if (!this.hasMove) return;
 
     let tileIndex = this.tiles.findIndex(
-      (tile) => tile.isTile == true && tile.locked == false,
+      (tile) => tile.isTile == true && tile.locked == false
     );
     let tile = this.tiles.splice(tileIndex, 1)[0];
 
@@ -342,7 +342,7 @@ export class GridComponent implements OnInit {
     if (Math.abs(delta) > this.SCROLL_THRESH) {
       const scaleChange = Math.pow(
         this.SCALE_STEP,
-        -sign * 0.05 * Math.abs(delta),
+        -sign * 0.05 * Math.abs(delta)
       );
       let newScale = this.scale * scaleChange;
       newScale = this.clamp(newScale, this.MIN_SCALE, this.MAX_SCALE);
@@ -403,7 +403,7 @@ export class GridComponent implements OnInit {
         this.addTile(
           this.sharedService.getSelectedTile().tileIndex,
           this.sharedService.getSelectedTile().rotation,
-          coords.coords,
+          coords.coords
         );
       } else if (this.sharedService.getStoneSelected()) {
         // Stone placement.
@@ -435,7 +435,7 @@ export class GridComponent implements OnInit {
       this.addTile(
         this.sharedService.getSelectedTile().tileIndex,
         this.sharedService.getSelectedTile().rotation,
-        coords.coords,
+        coords.coords
       );
     }
   }
@@ -535,25 +535,25 @@ export class GridComponent implements OnInit {
       (tile) =>
         tile.position.x == position.x + 1 &&
         tile.position.y == position.y &&
-        tile.tileIndex,
+        tile.tileIndex
     );
     let leftTile = this.tiles.find(
       (tile) =>
         tile.position.x == position.x - 1 &&
         tile.position.y == position.y &&
-        tile.tileIndex,
+        tile.tileIndex
     );
     let bottomTile = this.tiles.find(
       (tile) =>
         tile.position.x == position.x &&
         tile.position.y == position.y + 1 &&
-        tile.tileIndex,
+        tile.tileIndex
     );
     let topTile = this.tiles.find(
       (tile) =>
         tile.position.x == position.x &&
         tile.position.y == position.y - 1 &&
-        tile.tileIndex,
+        tile.tileIndex
     );
 
     return {
@@ -570,7 +570,7 @@ export class GridComponent implements OnInit {
         (coord) =>
           coord.coords.x == coords.coords.x &&
           coord.coords.y == coords.coords.y &&
-          coord.qrtr == coords.qrtr,
+          coord.qrtr == coords.qrtr
       )
     )
       return false;
@@ -590,7 +590,7 @@ export class GridComponent implements OnInit {
       (tile) =>
         tile.position.x == position.x &&
         tile.position.y == position.y &&
-        tile.tileIndex,
+        tile.tileIndex
     )!;
     let tileData = this.tilesMicropulData[tile.tileIndex!];
 
@@ -611,23 +611,36 @@ export class GridComponent implements OnInit {
     const checkAdjacentMicropul = (
       tile: Tile | undefined,
       qrtr: number,
-      micropul: number,
+      micropul: number
     ) => {
       if (tile) {
         let data = this.tilesMicropulData[tile.tileIndex!];
         if (data.length == 2) {
           if (data[0] != micropul) return;
 
-          isOpen =
-            isOpen ||
-            this.stoneCCA({ coords: tile.position, qrtr: 0 }, component) ||
-            this.stoneCCA({ coords: tile.position, qrtr: 1 }, component) ||
-            this.stoneCCA({ coords: tile.position, qrtr: 2 }, component) ||
-            this.stoneCCA({ coords: tile.position, qrtr: 3 }, component);
+          let open0 = this.stoneCCA(
+            { coords: tile.position, qrtr: 0 },
+            component
+          );
+          let open1 = this.stoneCCA(
+            { coords: tile.position, qrtr: 1 },
+            component
+          );
+          let open2 = this.stoneCCA(
+            { coords: tile.position, qrtr: 2 },
+            component
+          );
+          let open3 = this.stoneCCA(
+            { coords: tile.position, qrtr: 3 },
+            component
+          );
+          isOpen = isOpen || open0 || open1 || open2 || open3;
         } else {
           for (let i = 0; i < tile.rotation / 90; i++) data = rotate90(data);
           if (data[qrtr] == micropul)
-            this.stoneCCA({ coords: tile.position, qrtr: qrtr }, component);
+            isOpen =
+              this.stoneCCA({ coords: tile.position, qrtr: qrtr }, component) ||
+              isOpen;
         }
       } else {
         isOpen = true;
@@ -638,7 +651,7 @@ export class GridComponent implements OnInit {
       tileA: Tile | undefined,
       tileB: Tile | undefined,
       aQrtr: number,
-      bQrtr: number,
+      bQrtr: number
     ) => {
       checkAdjacentMicropul(tileA, aQrtr, micropul);
       checkAdjacentMicropul(tileB, bQrtr, micropul);
