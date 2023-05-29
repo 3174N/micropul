@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgxPanZoomModule } from 'ngx-panzoom';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,6 +18,8 @@ import { HandTileComponent } from './hand-tile/hand-tile.component';
 import { SupplyComponent } from './supply/supply.component';
 import { CoreComponent } from './core/core.component';
 import { StonesComponent } from './stones/stones.component';
+
+const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
 @NgModule({
   declarations: [
@@ -39,6 +42,7 @@ import { StonesComponent } from './stones/stones.component';
     MatGridListModule,
     MatCardModule,
     NgxPanZoomModule,
+    SocketIoModule.forRoot(config),
   ],
   providers: [],
   bootstrap: [AppComponent],

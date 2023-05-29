@@ -1,5 +1,6 @@
 import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { SharedService } from '../shared.service';
+import { GameService } from '../services/game.service';
 import tilesData from './tiles.json';
 
 interface Coords {
@@ -53,7 +54,10 @@ export class GridComponent implements OnInit {
   movePosition: Coords = { x: 0, y: 0 };
   isMoveValid: boolean = false;
 
-  constructor(private sharedService: SharedService) {}
+  constructor(
+    private sharedService: SharedService,
+    private gameService: GameService
+  ) {}
 
   ngOnInit(): void {
     this.addTile('40', 0, { x: 0, y: 0 }, true);
@@ -66,6 +70,8 @@ export class GridComponent implements OnInit {
         this.tilesMicropulData[key] = newArray;
       }
     }
+
+    this.gameService.test();
   }
 
   /**
