@@ -57,9 +57,17 @@ export class GridComponent implements OnInit {
   constructor(
     private sharedService: SharedService,
     private gameService: GameService
-  ) {}
+  ) {
+    this.gameService.socket.on('startGame', () => {
+      this.startGame();
+    });
+  }
 
   ngOnInit(): void {
+    this.gameService.socket.emit('join');
+  }
+
+  startGame() {
     this.addTile('40', 0, { x: 0, y: 0 }, true);
     this.tilesData = tilesData;
     for (const key in this.tilesData) {
@@ -70,8 +78,6 @@ export class GridComponent implements OnInit {
         this.tilesMicropulData[key] = newArray;
       }
     }
-
-    this.gameService.test();
   }
 
   /**

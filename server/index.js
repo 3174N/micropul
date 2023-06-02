@@ -10,20 +10,15 @@ const io = socketIO(server, {
   },
 });
 
-const port = 3000; // Replace with your desired port number
+const port = 3000;
 
 io.on("connection", (socket) => {
   console.log("A client has connected");
 
-  // Event listener for receiving messages from the client
-  socket.on("message", (data) => {
-    console.log("Received message:", data);
-
-    // Echo the message back to the client
-    socket.emit("message", data);
+  socket.on("join", () => {
+    socket.emit("startGame");
   });
 
-  // Event listener for when the client disconnects
   socket.on("disconnect", () => {
     console.log("A client has disconnected");
   });
