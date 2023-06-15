@@ -21,6 +21,17 @@ interface Tile {
   locked: boolean;
 }
 
+interface MoveMessage {
+  type: number;
+  move: Tile | StoneCoords;
+}
+
+enum MoveType {
+  Tile = 0,
+  Stone,
+  Drae,
+}
+
 @Component({
   selector: 'tile-grid',
   templateUrl: './grid.component.html',
@@ -54,6 +65,8 @@ export class GridComponent implements OnInit {
   movePosition: Coords = { x: 0, y: 0 };
   isMoveValid: boolean = false;
 
+  isPlayerTurn = false;
+
   constructor(
     private sharedService: SharedService,
     private gameService: GameService
@@ -61,10 +74,13 @@ export class GridComponent implements OnInit {
     this.gameService.socket.on('startGame', () => {
       this.startGame();
     });
+    this.gameService.socket.on('setTurn', (playerTurn: boolean) => {
+      this.isPlayerTurn = playerTurn;
+    });
   }
 
   ngOnInit(): void {
-    this.gameService.socket.emit('join');
+    this.gameService.socket.emit('joinGame');
   }
 
   startGame() {
@@ -127,6 +143,8 @@ export class GridComponent implements OnInit {
     position: Coords,
     isFirstTile: boolean = false
   ) {
+    if (!this.isPlayerTurn) return;
+
     if (!index) return;
 
     ////////////////////////
@@ -305,8 +323,15 @@ export class GridComponent implements OnInit {
     // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
 
-    // Stones CCA
+    // Stones CCA.
     this.updateStonesCCA();
+
+    // Send move to server.
+    let move: MoveMessage = {
+      type: MoveType.Tile,
+      move: this.tiles[tileIndex],
+    };
+    this.gameService.socket.emit('move', move);
   }
 
   updateStonesCCA() {
@@ -368,18 +393,20 @@ export class GridComponent implements OnInit {
         y: newPosition.y - this.translateY,
       };
 
-      // this.translateX += t1.x;
-      // this.translateY += t1.y * newScale;
-
       this.scale = newScale;
     }
   }
 
   addStone(coords: StoneCoords) {
+    if (!this.isPlayerTurn) return;
+
     this.stones.push(coords);
     this.sharedService.setStones(this.sharedService.getStones() - 1);
     this.sharedService.setStoneSelected(false);
     this.updateStonesCCA();
+
+    let move: MoveMessage = { type: MoveType.Stone, move: coords };
+    this.gameService.socket.emit('sendMove', move);
   }
 
   @HostListener('mouseenter')
@@ -406,6 +433,8 @@ export class GridComponent implements OnInit {
       this.isDragging = true;
       document.body.style.cursor = 'grabbing';
     } else {
+      if (!this.isPlayerTurn) return;
+
       if (this.sharedService.getSelectedTile().tileIndex != null) {
         // Cell placement.
         let coords = this.mousePosToCoords({
