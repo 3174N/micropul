@@ -23,13 +23,14 @@ interface Tile {
 
 interface MoveMessage {
   type: number;
-  move: Tile | StoneCoords;
+  tile: Tile | undefined;
+  stone: StoneCoords | undefined;
 }
 
 enum MoveType {
   Tile = 0,
   Stone,
-  Drae,
+  Draw,
 }
 
 @Component({
@@ -77,6 +78,9 @@ export class GridComponent implements OnInit {
     this.gameService.socket.on('setTurn', (playerTurn: boolean) => {
       this.isPlayerTurn = playerTurn;
     });
+    this.gameService.socket.on('getMove', (move: MoveMessage) => {
+      this.handleNewMove(move);
+    });
   }
 
   ngOnInit(): void {
@@ -93,6 +97,19 @@ export class GridComponent implements OnInit {
         );
         this.tilesMicropulData[key] = newArray;
       }
+    }
+  }
+
+  handleNewMove(move: MoveMessage) {
+    switch (move.type) {
+      case MoveType.Tile:
+        this.placeNewTile(move.tile!);
+        break;
+      case MoveType.Stone:
+        this.placeNewStone(move.stone!);
+        break;
+      case MoveType.Draw:
+        break;
     }
   }
 
@@ -303,8 +320,22 @@ export class GridComponent implements OnInit {
     );
     this.tiles[tileIndex].locked = true;
 
+    this.placeNewTile(this.tiles[tileIndex]);
+
+    this.hasMove = false;
+
+    // Send move to server.
+    let move: MoveMessage = {
+      type: MoveType.Tile,
+      tile: this.tiles[tileIndex],
+      stone: undefined,
+    };
+    this.gameService.socket.emit('move', move);
+  }
+
+  placeNewTile(tile: Tile) {
     let coords: Coords[] = this.tiles.map((tile) => tile.position);
-    let position = this.tiles[tileIndex].position;
+    let position = tile.position;
 
     // Remove placeholder in the new tile position.
     let placeHolderIndex = this.tiles.findIndex(
@@ -318,20 +349,11 @@ export class GridComponent implements OnInit {
     this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
     this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
 
-    this.hasMove = false;
-
     // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
 
     // Stones CCA.
     this.updateStonesCCA();
-
-    // Send move to server.
-    let move: MoveMessage = {
-      type: MoveType.Tile,
-      move: this.tiles[tileIndex],
-    };
-    this.gameService.socket.emit('move', move);
   }
 
   updateStonesCCA() {
@@ -384,14 +406,14 @@ export class GridComponent implements OnInit {
       let newScale = this.scale * scaleChange;
       newScale = this.clamp(newScale, this.MIN_SCALE, this.MAX_SCALE);
 
-      let newPosition = {
-        x: this.translateX * newScale,
-        y: this.translateY * newScale,
-      };
-      let t1 = {
-        x: newPosition.x - this.translateX,
-        y: newPosition.y - this.translateY,
-      };
+      // let newPosition = {
+      //   x: this.translateX * newScale,
+      //   y: this.translateY * newScale,
+      // };
+      // let t1 = {
+      //   x: newPosition.x - this.translateX,
+      //   y: newPosition.y - this.translateY,
+      // };
 
       this.scale = newScale;
     }
@@ -400,13 +422,22 @@ export class GridComponent implements OnInit {
   addStone(coords: StoneCoords) {
     if (!this.isPlayerTurn) return;
 
-    this.stones.push(coords);
     this.sharedService.setStones(this.sharedService.getStones() - 1);
     this.sharedService.setStoneSelected(false);
-    this.updateStonesCCA();
 
-    let move: MoveMessage = { type: MoveType.Stone, move: coords };
+    this.placeNewStone(coords);
+
+    let move: MoveMessage = {
+      type: MoveType.Stone,
+      stone: coords,
+      tile: undefined,
+    };
     this.gameService.socket.emit('sendMove', move);
+  }
+
+  placeNewStone(coords: StoneCoords) {
+    this.stones.push(coords);
+    this.updateStonesCCA();
   }
 
   @HostListener('mouseenter')
