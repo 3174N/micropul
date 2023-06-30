@@ -18,6 +18,8 @@ export class SharedService {
 
   private supply: string[] = [];
 
+  private isCurrentTurn: boolean = false;
+
   constructor() {}
 
   setSelectedTile(tile: SelectedTile) {
@@ -52,5 +54,12 @@ export class SharedService {
   }
   getSupply(): string[] {
     return this.supply;
+  }
+
+  setTurn(isTurn: boolean) {
+    this.isCurrentTurn = isTurn;
+  }
+  getTurn(): boolean {
+    return this.isCurrentTurn;
   }
 }

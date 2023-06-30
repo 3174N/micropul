@@ -1,5 +1,16 @@
 import { Component } from '@angular/core';
+import { GameService } from '../services/game.service';
 import { SharedService } from '../shared.service';
+
+enum EffectType {
+  Draw = 0,
+  Plus,
+}
+
+interface Effect {
+  type: EffectType;
+  count: number;
+}
 
 @Component({
   selector: 'core',
@@ -18,13 +29,22 @@ export class CoreComponent {
     }
   }
 
-  constructor(private sharedService: SharedService) {
+  constructor(
+    private sharedService: SharedService,
+    private gameService: GameService
+  ) {
     this.shuffle();
+
+    this.gameService.socket.on('effects', (effects: Effect[]) => {
+      if (!sharedService.getTurn()) return;
+
+      effects.forEach((e) => {
+        if (e.type == EffectType.Draw) this.draw();
+      });
+    });
   }
 
-  click() {
-    if (this.core.length <= 0) return; // Game over.
-
+  draw() {
     // Remove tile from core and add it to supply.
     let tile = this.core[0];
     this.core.splice(0, 1);

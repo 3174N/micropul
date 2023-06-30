@@ -66,8 +66,6 @@ export class GridComponent implements OnInit {
   movePosition: Coords = { x: 0, y: 0 };
   isMoveValid: boolean = false;
 
-  isPlayerTurn = false;
-
   constructor(
     private sharedService: SharedService,
     private gameService: GameService
@@ -76,7 +74,7 @@ export class GridComponent implements OnInit {
       this.startGame();
     });
     this.gameService.socket.on('setTurn', (playerTurn: boolean) => {
-      this.isPlayerTurn = playerTurn;
+      this.sharedService.setTurn(playerTurn);
     });
     this.gameService.socket.on('getMove', (move: MoveMessage) => {
       this.handleNewMove(move);
@@ -160,7 +158,7 @@ export class GridComponent implements OnInit {
     position: Coords,
     isFirstTile: boolean = false
   ) {
-    if (!this.isPlayerTurn) return;
+    if (!this.sharedService.getTurn()) return;
 
     if (!index) return;
 
@@ -420,7 +418,7 @@ export class GridComponent implements OnInit {
   }
 
   addStone(coords: StoneCoords) {
-    if (!this.isPlayerTurn) return;
+    if (!this.sharedService.getTurn()) return;
 
     this.sharedService.setStones(this.sharedService.getStones() - 1);
     this.sharedService.setStoneSelected(false);
@@ -464,7 +462,7 @@ export class GridComponent implements OnInit {
       this.isDragging = true;
       document.body.style.cursor = 'grabbing';
     } else {
-      if (!this.isPlayerTurn) return;
+      if (!this.sharedService.getTurn()) return;
 
       if (this.sharedService.getSelectedTile().tileIndex != null) {
         // Cell placement.
