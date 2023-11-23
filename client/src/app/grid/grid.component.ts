@@ -21,16 +21,16 @@ interface Tile {
   locked: boolean;
 }
 
-interface MoveMessage {
-  type: number;
-  tile: Tile | undefined;
-  stone: StoneCoords | undefined;
-}
-
 enum MoveType {
   Tile = 0,
   Stone,
   Draw,
+}
+
+interface MoveMessage {
+  type: MoveType;
+  tile: Tile | undefined;
+  stone: StoneCoords | undefined;
 }
 
 @Component({
@@ -70,7 +70,11 @@ export class GridComponent implements OnInit {
     private sharedService: SharedService,
     private gameService: GameService
   ) {
+    this.gameService.socket.on('setHand', (hand: string[]) => {
+      this.sharedService.setHand(hand);
+    });
     this.gameService.socket.on('startGame', () => {
+      console.log('Got game start');
       this.startGame();
     });
     this.gameService.socket.on('setTurn', (playerTurn: boolean) => {
@@ -79,14 +83,24 @@ export class GridComponent implements OnInit {
     this.gameService.socket.on('getMove', (move: MoveMessage) => {
       this.handleNewMove(move);
     });
+    this.gameService.socket.on('tilesState', (newTiles: Tile[]) => {
+      this.tiles = [];
+      newTiles.forEach((t) => {
+        if (t.isTile) {
+          this.placeNewTile(t);
+        }
+      });
+    });
+    this.gameService.socket.on('endGame', () => {
+      this.endGame();
+    });
   }
 
   ngOnInit(): void {
-    this.gameService.socket.emit('joinGame');
+    this.gameService.socket.emit('joinGame', 'testroom');
   }
 
   startGame() {
-    this.addTile('40', 0, { x: 0, y: 0 }, true);
     this.tilesData = tilesData;
     for (const key in this.tilesData) {
       if (this.tilesData.hasOwnProperty(key)) {
@@ -96,6 +110,10 @@ export class GridComponent implements OnInit {
         this.tilesMicropulData[key] = newArray;
       }
     }
+  }
+
+  endGame() {
+    // TODO
   }
 
   handleNewMove(move: MoveMessage) {
@@ -150,14 +168,8 @@ export class GridComponent implements OnInit {
    * @param index Tile index.
    * @param rotation Tile rotation.
    * @param position New position.
-   * @param isFirstTile
    */
-  addTile(
-    index: string | null,
-    rotation: number,
-    position: Coords,
-    isFirstTile: boolean = false
-  ) {
+  addTile(index: string | null, rotation: number, position: Coords) {
     if (!this.sharedService.getTurn()) return;
 
     if (!index) return;
@@ -192,30 +204,20 @@ export class GridComponent implements OnInit {
       tileIndex: index,
       isTile: true,
       rotation: rotation,
-      locked: isFirstTile, // First tile should be locked, the rest should not.
+      locked: false,
     });
 
-    if (!isFirstTile) {
-      // Remove tile from hand.
-      this.hasMove = true;
-      this.movePosition = position;
+    // Remove tile from hand.
+    this.hasMove = true;
+    this.movePosition = position;
 
-      let hand = this.sharedService.getHand();
-      hand.splice(hand.indexOf(index), 1);
-      this.sharedService.setHand(hand);
-      this.sharedService.setSelectedTile({ tileIndex: null, rotation: 0 });
-    } else {
-      // Add placeholders around new tile if there is empty space there.
-      this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
-      this.addPlaceholder(coords, { x: position.x + 1, y: position.y });
-      this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
-      this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
-    }
+    let hand = this.sharedService.getHand();
+    hand.splice(hand.indexOf(index), 1);
+    this.sharedService.setHand(hand);
+    this.sharedService.setSelectedTile({ tileIndex: null, rotation: 0 });
 
     // Sort tiles for rendering (placeholders before tiles).
     this.tiles.sort(this.sortTiles);
-
-    if (isFirstTile) return;
 
     // Check if move is valid
     this.isMoveValid = this.checkMove({
@@ -318,17 +320,18 @@ export class GridComponent implements OnInit {
     );
     this.tiles[tileIndex].locked = true;
 
-    this.placeNewTile(this.tiles[tileIndex]);
-
-    this.hasMove = false;
-
     // Send move to server.
     let move: MoveMessage = {
       type: MoveType.Tile,
       tile: this.tiles[tileIndex],
       stone: undefined,
     };
-    this.gameService.socket.emit('move', move);
+    this.gameService.socket.emit('sendMove', move);
+
+    // TODO: wait for server response?
+    this.placeNewTile(this.tiles[tileIndex]);
+
+    this.hasMove = false;
   }
 
   placeNewTile(tile: Tile) {
@@ -340,6 +343,9 @@ export class GridComponent implements OnInit {
       (tile) => tile.position.x == position.x && tile.position.y == position.y
     );
     this.tiles.splice(placeHolderIndex, 1);
+    if (!this.tiles.some((t) => t.tileIndex == tile.tileIndex)) {
+      this.tiles.push(tile);
+    }
 
     // Add placeholders around new tile if there is empty space there.
     this.addPlaceholder(coords, { x: position.x - 1, y: position.y });
