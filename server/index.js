@@ -10,6 +10,14 @@ const MoveType = {
   Draw: 2,
 };
 
+class Player {
+  constructor(socket) {
+    this.socket = socket;
+    this.hand = [];
+    this.supply = [];
+  }
+}
+
 class Room {
   constructor(name) {
     this.name = name;
@@ -64,28 +72,39 @@ class Room {
       // TODO: stop game
     });
 
-    this.players.push(socket);
+    this.players.push(new Player(socket));
 
     if (this.players.length >= 2) this.startGame();
   }
 
+  updateGame() {
+    this.players.forEach((player) => {
+      player.socket.emit("setCore", this.core.length);
+      player.socket.emit("tilesState", this.tiles);
+      player.socket.emit("setHand", player.hand);
+      player.socket.emit("setSupply", player.supply);
+    });
+  }
+
   startGame() {
     console.log("Starting game");
-    this.players.forEach((s) => s.emit("startGame"));
+    this.players.forEach((p) => p.socket.emit("startGame"));
 
-    this.players.forEach((socket) => {
+    this.players.forEach((player) => {
       var startingHand = [];
       for (let i = 0; i < 6; i++) {
         startingHand.push(this.drawFromCore());
       }
-      socket.emit("setHand", startingHand);
+      player.hand = startingHand;
+      player.supply = [];
     });
-    this.players.forEach((s) => s.emit("setCore", this.core.length));
 
-    this.players[0].emit("setTurn", true);
-    this.players[1].emit("setTurn", false);
+    this.players[0].socket.emit("setTurn", true);
+    this.players[1].socket.emit("setTurn", false);
     this.currentTurn = 0;
     this.addTile("40", 0, { x: 0, y: 0 }, true);
+
+    this.updateGame();
   }
 
   handleMove(move, playerIndex) {
@@ -96,11 +115,13 @@ class Room {
         move.tile.position,
         false
       );
-      this.players[playerIndex == 0 ? 1 : 0].emit("getMove", move);
+      this.players[playerIndex == 0 ? 1 : 0].socket.emit("getMove", move);
     }
-    this.players[this.currentTurn].emit("setTurn", false);
+    this.players[this.currentTurn].socket.emit("setTurn", false);
     this.currentTurn = this.currentTurn == 0 ? 1 : 0;
-    this.players[this.currentTurn].emit("setTurn", true);
+    this.players[this.currentTurn].socket.emit("setTurn", true);
+
+    this.updateGame();
   }
 
   addTile(index, rotation, position, isFirstTile) {
@@ -109,6 +130,13 @@ class Room {
     ////////////////////////
     // Place tile on grid //
     ////////////////////////
+
+    // Remove tile from hand
+    let hand = this.players[this.currentTurn].hand;
+    hand.splice(
+      hand.findIndex((t) => t == index),
+      1
+    );
 
     // Get all placeholder/tiles coords.
     let coords = this.tiles.map((tile) => tile.position);
@@ -127,13 +155,14 @@ class Room {
     }
 
     // Add new tile.
-    this.tiles.push({
+    let newTile = {
       position: position,
       tileIndex: index,
       isTile: true,
       rotation: rotation,
       locked: true,
-    });
+    };
+    this.tiles.push(newTile);
 
     if (isFirstTile) {
       // Add placeholders around new tile if there is empty space there.
@@ -147,7 +176,6 @@ class Room {
     this.tiles.sort(this.sortTiles);
 
     if (isFirstTile) {
-      this.players.forEach((s) => s.emit("tilesState", this.tiles));
       return;
     }
 
@@ -178,12 +206,26 @@ class Room {
     // Stones CCA.
     // this.updateStonesCCA();
 
-    // TODO:
-    // If move is valid, check activated catalysts.
+    // Check activated catalysts
+    let connections = this.getConnections(newTile);
+    let tilesToSupply = 0;
+    let bonusTurns = 0;
+    connections.forEach((c) => {
+      if (c[0] == 1 || c[0] == 2) {
+        if (c[1] == 3) tilesToSupply++;
+        if (c[1] == 4) tilesToSupply += 2;
+        if (c[1] == 5) bonusTurns++;
+      } else if (c[1] == 1 || c[1] == 2) {
+        if (c[0] == 3) tilesToSupply++;
+        if (c[0] == 4) tilesToSupply += 2;
+        if (c[0] == 5) bonusTurns++;
+      }
+    });
 
-    for (let i = 0; i < this.players.length; i++) {
-      const element = this.players[i];
-      element.emit("tilesState", this.tiles);
+    if (tilesToSupply > 0) {
+      for (let i = 0; i < tilesToSupply; i++) {
+        this.players[this.currentTurn].supply.push(this.drawFromCore());
+      }
     }
   }
 
@@ -259,6 +301,66 @@ class Room {
     }
 
     return moveValid.hasValidConnection && !moveValid.hasInvalidConnection;
+  }
+
+  getConnections(tile) {
+    // TODO: use this function for checking move
+
+    // Get adjacent tiles.
+    let tiles = this.getAdjacentTiles(tile.position);
+    let rightTile = tiles.right;
+    let leftTile = tiles.left;
+    let bottomTile = tiles.bottom;
+    let topTile = tiles.top;
+
+    let tileData = this.tilesData[tile.tileIndex];
+
+    // Rotate tile.
+    const rotate90 = (grid) => {
+      const rotatedGrid = [];
+      rotatedGrid[0] = grid[2];
+      rotatedGrid[1] = grid[0];
+      rotatedGrid[2] = grid[3];
+      rotatedGrid[3] = grid[1];
+      return rotatedGrid;
+    };
+
+    for (let i = 0; i < tile.rotation / 90; i++) tileData = rotate90(tileData);
+
+    let connections = [];
+
+    // Check connected micropuls.
+    const checkSide = (sTile, a1, a2, b1, b2) => {
+      if (!sTile) return;
+
+      let tData = this.tilesMicropulData[sTile.tileIndex];
+      for (let i = 0; i < sTile.rotation / 90; i++) tData = rotate90(tData);
+      let data = tileData;
+
+      // if (tData.length === 2) b1 = b2 = 0; // Big micropul.
+
+      connections.push([data[a1], tData[a2]]);
+      connections.push([data[b1], tData[b2]]);
+    };
+
+    // Tile:
+    // 0 1
+    // 2 3
+    if (tileData.length === 4) {
+      checkSide(rightTile, 1, 0, 3, 2);
+      checkSide(leftTile, 0, 1, 2, 3);
+      checkSide(topTile, 0, 2, 1, 3);
+      checkSide(bottomTile, 2, 0, 3, 1);
+    } else {
+      // Big micropul.
+      checkSide(rightTile, 0, 0, 0, 2);
+      checkSide(leftTile, 0, 1, 0, 3);
+      checkSide(topTile, 0, 2, 0, 3);
+      checkSide(bottomTile, 0, 0, 0, 1);
+      // TODO: big micropul catalysts
+    }
+
+    return connections;
   }
 
   getAdjacentTiles(position) {

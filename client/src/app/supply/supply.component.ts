@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { SharedService } from '../shared.service';
+import { GameService } from '../services/game.service';
 
 @Component({
   selector: 'supply',
@@ -11,7 +12,15 @@ export class SupplyComponent {
     return this.sharedService.getSupply();
   }
 
-  constructor(private sharedService: SharedService) {}
+  constructor(
+    private sharedService: SharedService,
+    private gameService: GameService
+  ) {
+    gameService.socket.on('setSupply', (supply: string[]) => {
+      console.log(supply);
+      sharedService.setSupply(supply);
+    });
+  }
 
   click() {
     let supply = this.sharedService.getSupply();
