@@ -14,6 +14,7 @@ class Room {
   constructor(name) {
     this.name = name;
     this.players = [];
+    this.currentTurn = 0;
 
     this.tiles = [];
     this.stones = [];
@@ -65,20 +66,25 @@ class Room {
 
     this.players.push(socket);
 
-    var startingHand = [];
-    for (let i = 0; i < 6; i++) {
-      startingHand.push(this.drawFromCore());
-    }
-    socket.emit("setHand", startingHand);
-
     if (this.players.length >= 2) this.startGame();
   }
 
   startGame() {
     console.log("Starting game");
     this.players.forEach((s) => s.emit("startGame"));
+
+    this.players.forEach((socket) => {
+      var startingHand = [];
+      for (let i = 0; i < 6; i++) {
+        startingHand.push(this.drawFromCore());
+      }
+      socket.emit("setHand", startingHand);
+    });
+    this.players.forEach((s) => s.emit("setCore", this.core.length));
+
     this.players[0].emit("setTurn", true);
     this.players[1].emit("setTurn", false);
+    this.currentTurn = 0;
     this.addTile("40", 0, { x: 0, y: 0 }, true);
   }
 
@@ -92,6 +98,9 @@ class Room {
       );
       this.players[playerIndex == 0 ? 1 : 0].emit("getMove", move);
     }
+    this.players[this.currentTurn].emit("setTurn", false);
+    this.currentTurn = this.currentTurn == 0 ? 1 : 0;
+    this.players[this.currentTurn].emit("setTurn", true);
   }
 
   addTile(index, rotation, position, isFirstTile) {

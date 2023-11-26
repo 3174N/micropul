@@ -20,6 +20,10 @@ interface Effect {
 export class CoreComponent {
   size: number = 48;
 
+  constructor(private gameService: GameService) {
+    this.gameService.socket.on('setCore', (size: number) => this.setSize(size));
+  }
+
   setSize(size: number) {
     this.size = size;
   }
