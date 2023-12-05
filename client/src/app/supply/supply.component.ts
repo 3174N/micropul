@@ -2,37 +2,41 @@ import { Component } from '@angular/core';
 import { SharedService } from '../shared.service';
 import { GameService } from '../services/game.service';
 
+enum MoveType {
+  Tile = 0,
+  Stone,
+  Draw,
+}
+
 @Component({
   selector: 'supply',
   templateUrl: './supply.component.html',
   styleUrls: ['./supply.component.less'],
 })
 export class SupplyComponent {
-  getSupply(): string[] {
-    return this.sharedService.getSupply();
-  }
+  supplyLen: number = 0;
+
+  // getSupply():  {
+  //   return this.supplyLen;
+  // }
 
   constructor(
     private sharedService: SharedService,
     private gameService: GameService
   ) {
-    gameService.socket.on('setSupply', (supply: string[]) => {
-      console.log(supply);
-      sharedService.setSupply(supply);
+    gameService.socket.on('setSupply', (supply: number) => {
+      this.supplyLen = supply;
     });
   }
 
   click() {
-    let supply = this.sharedService.getSupply();
+    if (!this.sharedService.getTurn()) return;
 
-    if (supply.length <= 0) return;
-
-    // Remove tile from supply and add it to hand.
-    let tile = supply[0];
-    supply.splice(0, 1);
-    let hand = this.sharedService.getHand();
-    hand.push(tile);
-    this.sharedService.setHand(hand);
-    this.sharedService.setSupply(supply);
+    let move = {
+      type: MoveType.Draw,
+      tile: undefined,
+      stone: undefined,
+    };
+    this.gameService.socket.emit('sendMove', move);
   }
 }

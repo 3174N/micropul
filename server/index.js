@@ -83,7 +83,7 @@ class Room {
       player.socket.emit("setCore", this.core.length);
       player.socket.emit("tilesState", this.tiles);
       player.socket.emit("setHand", player.hand);
-      player.socket.emit("setSupply", player.supply);
+      player.socket.emit("setSupply", player.supply.length);
     });
   }
 
@@ -117,6 +117,8 @@ class Room {
         false
       );
       this.players[playerIndex == 0 ? 1 : 0].socket.emit("getMove", move);
+    } else if (move.type == MoveType.Draw) {
+      this.drawFromSupply();
     }
 
     if (this.players[this.currentTurn].bonusTurns == 0) {
@@ -414,6 +416,12 @@ class Room {
         rotation: 0,
         locked: true,
       });
+  }
+
+  drawFromSupply() {
+    let supply = this.players[this.currentTurn].supply;
+    let tile = supply.pop();
+    this.players[this.currentTurn].hand.push(tile);
   }
 }
 
