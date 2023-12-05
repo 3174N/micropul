@@ -16,6 +16,7 @@ class Player {
     this.hand = [];
     this.supply = [];
     this.bonusTurns = 0;
+    this.score = 0;
   }
 }
 
@@ -130,6 +131,19 @@ class Room {
     }
 
     this.updateGame();
+
+    // Check for game end.
+    if (this.core.length == 0) {
+      this.endGame();
+    }
+    for (let i = 0; i < this.players.length; i++) {
+      if (
+        this.players[i].hand.length == 0 &&
+        this.players[i].supply.length == 0
+      ) {
+        this.endGame(i);
+      }
+    }
   }
 
   addTile(index, rotation, position, isFirstTile) {
@@ -422,6 +436,33 @@ class Room {
     let supply = this.players[this.currentTurn].supply;
     let tile = supply.pop();
     this.players[this.currentTurn].hand.push(tile);
+  }
+
+  endGame(winner = undefined) {
+    if (winner !== undefined) {
+      console.log("Winner: " + winner);
+      return;
+    }
+
+    // Calculate score
+    this.players.forEach((player) => {
+      player.score += player.hand.length + player.supply.length * 2;
+      // TODO: Stones score (based on CCA whatever)
+    });
+
+    // Find player with largest score
+    let maxScore = 0;
+    let winnerIndex = 0;
+    this.players.forEach((player, index) => {
+      if (player.score > maxScore) {
+        maxScore = player.score;
+        winnerIndex = index;
+      }
+    });
+
+    console.log("Winner: " + winnerIndex);
+
+    // TODO: close room or something
   }
 }
 
