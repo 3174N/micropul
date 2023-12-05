@@ -15,6 +15,7 @@ class Player {
     this.socket = socket;
     this.hand = [];
     this.supply = [];
+    this.bonusTurns = 0;
   }
 }
 
@@ -117,9 +118,14 @@ class Room {
       );
       this.players[playerIndex == 0 ? 1 : 0].socket.emit("getMove", move);
     }
-    this.players[this.currentTurn].socket.emit("setTurn", false);
-    this.currentTurn = this.currentTurn == 0 ? 1 : 0;
-    this.players[this.currentTurn].socket.emit("setTurn", true);
+
+    if (this.players[this.currentTurn].bonusTurns == 0) {
+      this.players[this.currentTurn].socket.emit("setTurn", false);
+      this.currentTurn = this.currentTurn == 0 ? 1 : 0;
+      this.players[this.currentTurn].socket.emit("setTurn", true);
+    } else {
+      this.players[this.currentTurn].bonusTurns--;
+    }
 
     this.updateGame();
   }
@@ -227,6 +233,8 @@ class Room {
         this.players[this.currentTurn].supply.push(this.drawFromCore());
       }
     }
+
+    this.players[this.currentTurn].bonusTurns += bonusTurns;
   }
 
   sortTiles(a, b) {
