@@ -1,4 +1,10 @@
 <div class="container">
+  <div class="endscreen" *ngIf="winner != undefined">
+    You {{ winner ? "Won" : "Lost" }} <br />
+    Scores: <br />
+    You: {{ score }} <br />
+    Enemy: {{ enemyScore }}
+  </div>
   <div
     #board
     class="grid"

@@ -4,6 +4,8 @@ const socketIO = require("socket.io");
 
 const tilesData = require("./tiles.json");
 
+// TODO: DOCUMENTATION
+
 const MoveType = {
   Tile: 0,
   Stone: 1,
@@ -33,7 +35,7 @@ class Room {
 
     this.tiles = [];
     this.stones = [];
-    this.core = Array.from({ length: 48 }, (_, i) => i.toString()).filter(
+    this.core = Array.from({ length: 15 }, (_, i) => i.toString()).filter(
       (i) => i !== "40"
     );
 
@@ -98,6 +100,9 @@ class Room {
         "setEnemyStones",
         this.players[i == 0 ? 1 : 0].placedStones
       );
+
+      // this.calcPlayerScore(player);
+      // player.socket.emit("setScore", player.score);
     }
   }
 
@@ -157,7 +162,8 @@ class Room {
         this.players[i].hand.length == 0 &&
         this.players[i].supply.length == 0
       ) {
-        this.endGame(i);
+        console.log("Technical victory");
+        this.endGame(i == 0 ? 1 : 0);
       }
     }
   }
@@ -359,6 +365,10 @@ class Room {
       } else {
         connections.push([data[a1], tData[a2]]);
         connections.push([data[b1], tData[b2]]);
+
+        // Stop double catalyst activation in the same turn.
+        if (data[a1] > 2) if (data[a2] == 1 || data[a2] == 2) data[a1] = 0;
+        if (data[b1] > 2) if (data[b2] == 1 || data[b2] == 2) data[b1] = 0;
       }
     };
 
@@ -531,10 +541,9 @@ class Room {
 
   calcStonesArea() {
     let area = [];
-    let isOpen = false;
     this.stones.forEach((stone) => {
       let component = [];
-      isOpen = this.stoneCCA(stone, component) || isOpen;
+      this.stoneCCA(stone, component);
       area = area.concat(component);
     });
     return area;
@@ -561,17 +570,39 @@ class Room {
     player.placedStones.push(stoneCoords);
   }
 
+  calcPlayerScore(player) {
+    const calcStoneScore = (stone) => {
+      let area = [];
+      let isClosed = false;
+      isClosed = !this.stoneCCA(stone, area);
+      if (isClosed) return area.length;
+      else return 0;
+    };
+
+    player.score = 0;
+    player.score += player.hand.length + player.supply.length * 2;
+    for (let i = 0; i < player.placedStones.length; i++) {
+      player.score += calcStoneScore(player.placedStones[i]);
+    }
+  }
+
   endGame(winner = undefined) {
     if (winner !== undefined) {
       console.log("Winner: " + winner);
+      for (let i = 0; i < this.players.length; i++) {
+        this.players[i].socket.emit("endGame", {
+          winner: i == winner,
+          scores: {
+            you: 0,
+            enemy: 0,
+          },
+        });
+      }
       return;
     }
 
     // Calculate score
-    this.players.forEach((player) => {
-      player.score += player.hand.length + player.supply.length * 2;
-      // TODO: Stones score (based on CCA whatever)
-    });
+    this.players.forEach(this.calcPlayerScore);
 
     // Find player with largest score
     let maxScore = 0;
@@ -584,8 +615,20 @@ class Room {
     });
 
     console.log("Winner: " + winnerIndex);
+    console.log("0 Score: " + this.players[0].score);
+    console.log("1 Score: " + this.players[1].score);
 
-    // TODO: close room or something
+    for (let i = 0; i < this.players.length; i++) {
+      this.players[i].socket.emit("endGame", {
+        winner: i == winnerIndex,
+        scores: {
+          you: this.players[i].score,
+          enemy: this.players[i == 0 ? 1 : 0].score,
+        },
+      });
+    }
+
+    // TODO: Stop game?
   }
 }
 

@@ -3,6 +3,8 @@ import { SharedService } from '../shared.service';
 import { GameService } from '../services/game.service';
 import tilesData from './tiles.json';
 
+// TODO: DOCUMENTATION
+
 interface Coords {
   x: number;
   y: number;
@@ -31,6 +33,11 @@ interface MoveMessage {
   type: MoveType;
   tile: Tile | undefined;
   stone: StoneCoords | undefined;
+}
+
+interface EndMessage {
+  winner: boolean;
+  scores: { you: number; enemy: number };
 }
 
 @Component({
@@ -68,6 +75,10 @@ export class GridComponent implements OnInit {
   movePosition: Coords = { x: 0, y: 0 };
   isMoveValid: boolean = false;
 
+  winner: boolean | undefined = undefined;
+  score: number = 0;
+  enemyScore: number = 0;
+
   constructor(
     private sharedService: SharedService,
     private gameService: GameService
@@ -102,8 +113,8 @@ export class GridComponent implements OnInit {
       this.enemyStones = stones;
       this.updateStonesCCA();
     });
-    this.gameService.socket.on('endGame', () => {
-      this.endGame();
+    this.gameService.socket.on('endGame', (results: EndMessage) => {
+      this.endGame(results);
     });
   }
 
@@ -123,8 +134,10 @@ export class GridComponent implements OnInit {
     }
   }
 
-  endGame() {
-    // TODO
+  endGame(results: EndMessage) {
+    this.winner = results.winner;
+    this.score = results.scores.you;
+    this.enemyScore = results.scores.enemy;
   }
 
   handleNewMove(move: MoveMessage) {
