@@ -94,6 +94,14 @@ export class GridComponent implements OnInit {
       });
       this.updateStonesCCA();
     });
+    this.gameService.socket.on('setStones', (stones: StoneCoords[]) => {
+      this.stones = stones;
+      this.updateStonesCCA();
+    });
+    this.gameService.socket.on('setEnemyStones', (stones: StoneCoords[]) => {
+      this.enemyStones = stones;
+      this.updateStonesCCA();
+    });
     this.gameService.socket.on('endGame', () => {
       this.endGame();
     });

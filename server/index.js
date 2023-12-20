@@ -85,15 +85,20 @@ class Room {
   }
 
   updateGame() {
-    this.players.forEach((player) => {
-      // TODO: Update stones
+    for (let i = 0; i < this.players.length; i++) {
+      let player = this.players[i];
 
+      // FIXME?: Weird stuff with player hands not setting correctly (can't reproduce).
       player.socket.emit("setCore", this.core.length);
       player.socket.emit("tilesState", this.tiles);
-      // FIXME: Weird stuff with player hands not setting correctly (can't reproduce).
       player.socket.emit("setHand", player.hand);
       player.socket.emit("setSupply", player.supply.length);
-    });
+      player.socket.emit("setStones", player.placedStones);
+      player.socket.emit(
+        "setEnemyStones",
+        this.players[i == 0 ? 1 : 0].placedStones
+      );
+    }
   }
 
   startGame() {
