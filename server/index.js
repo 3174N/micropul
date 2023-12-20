@@ -13,9 +13,14 @@ const MoveType = {
 class Player {
   constructor(socket) {
     this.socket = socket;
+
     this.hand = [];
     this.supply = [];
+    this.placedStones = [];
+    this.remainingStones = 3;
+
     this.bonusTurns = 0;
+
     this.score = 0;
   }
 }
@@ -120,6 +125,9 @@ class Room {
       this.players[playerIndex == 0 ? 1 : 0].socket.emit("getMove", move);
     } else if (move.type == MoveType.Draw) {
       this.drawFromSupply();
+    } else if (move.type == MoveType.Stone) {
+      this.addStone(move.stone);
+      this.players[playerIndex == 0 ? 1 : 0].socket.emit("getMove", move);
     }
 
     if (this.players[this.currentTurn].bonusTurns == 0) {
@@ -436,6 +444,143 @@ class Room {
     let supply = this.players[this.currentTurn].supply;
     let tile = supply.pop();
     this.players[this.currentTurn].hand.push(tile);
+  }
+
+  stoneCCA(coords, component) {
+    if (
+      component.some(
+        (coord) =>
+          coord.coords.x == coords.coords.x &&
+          coord.coords.y == coords.coords.y &&
+          coord.qrtr == coords.qrtr
+      )
+    )
+      return false;
+
+    component.push(coords);
+
+    let position = coords.coords;
+
+    // Get adjacent tiles.
+    let tiles = this.getAdjacentTiles(coords.coords);
+    let rightTile = tiles.right;
+    let leftTile = tiles.left;
+    let bottomTile = tiles.bottom;
+    let topTile = tiles.top;
+
+    let tile = this.tiles.find(
+      (tile) =>
+        tile.position.x == position.x &&
+        tile.position.y == position.y &&
+        tile.tileIndex
+    );
+    let tileData = this.tilesMicropulData[tile.tileIndex];
+
+    // Rotate tile.
+    const rotate90 = (grid) => {
+      const rotatedGrid = [];
+      rotatedGrid[0] = grid[2];
+      rotatedGrid[1] = grid[0];
+      rotatedGrid[2] = grid[3];
+      rotatedGrid[3] = grid[1];
+      return rotatedGrid;
+    };
+
+    for (let i = 0; i < tile.rotation / 90; i++) tileData = rotate90(tileData);
+
+    let isOpen = false;
+
+    const checkAdjacentMicropul = (tile, qrtr, micropul) => {
+      if (tile) {
+        let data = this.tilesMicropulData[tile.tileIndex];
+        if (data.length == 2) {
+          if (data[0] != micropul) return;
+
+          let open0 = this.stoneCCA(
+            { coords: tile.position, qrtr: 0 },
+            component
+          );
+          let open1 = this.stoneCCA(
+            { coords: tile.position, qrtr: 1 },
+            component
+          );
+          let open2 = this.stoneCCA(
+            { coords: tile.position, qrtr: 2 },
+            component
+          );
+          let open3 = this.stoneCCA(
+            { coords: tile.position, qrtr: 3 },
+            component
+          );
+          isOpen = isOpen || open0 || open1 || open2 || open3;
+        } else {
+          for (let i = 0; i < tile.rotation / 90; i++) data = rotate90(data);
+          if (data[qrtr] == micropul)
+            isOpen =
+              this.stoneCCA({ coords: tile.position, qrtr: qrtr }, component) ||
+              isOpen;
+        }
+      } else {
+        isOpen = true;
+      }
+    };
+
+    const checkAdjacent = (tileA, tileB, aQrtr, bQrtr) => {
+      checkAdjacentMicropul(tileA, aQrtr, micropul);
+      checkAdjacentMicropul(tileB, bQrtr, micropul);
+      checkAdjacentMicropul(tile, aQrtr, micropul);
+      checkAdjacentMicropul(tile, bQrtr, micropul);
+    };
+
+    let micropul = tileData.length != 2 ? tileData[coords.qrtr] : tileData[0];
+    switch (coords.qrtr) {
+      case 0:
+        checkAdjacent(topTile, leftTile, 2, 1);
+        break;
+      case 1:
+        checkAdjacent(topTile, rightTile, 3, 0);
+        break;
+      case 2:
+        checkAdjacent(bottomTile, leftTile, 0, 3);
+        break;
+      case 3:
+        checkAdjacent(bottomTile, rightTile, 1, 2);
+        break;
+    }
+
+    return isOpen;
+  }
+
+  calcStonesArea() {
+    let area = [];
+    let isOpen = false;
+    this.stones.forEach((stone) => {
+      let component = [];
+      isOpen = this.stoneCCA(stone, component) || isOpen;
+      area = area.concat(component);
+    });
+    return area;
+  }
+
+  addStone(stoneCoords) {
+    let player = this.players[this.currentTurn];
+    if (player.remainingStones.length <= 0) return; // TODO: Error
+
+    let area = this.calcStonesArea();
+    if (
+      area.some(
+        (coord) =>
+          coord.coords.x == stoneCoords.coords.x &&
+          coord.coords.y == stoneCoords.coords.y &&
+          coord.qrtr == stoneCoords.qrtr
+      )
+    )
+      return; // TODO: Error
+
+    this.stones.push(stoneCoords);
+
+    player.remainingStones--;
+    player.placedStones.push(stoneCoords);
   }
 
   endGame(winner = undefined) {

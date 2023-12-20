@@ -43,6 +43,20 @@
           ></div>
         </div>
       </div>
+      <div *ngFor="let group of enemyStonesCCA">
+        <div
+          *ngFor="let stone of group"
+          class="stones"
+          [style.top.px]="stone.coords.y * 51"
+          [style.left.px]="stone.coords.x * 51"
+        >
+          <div
+            class="enemy-stone"
+            [style.top.px]="getOffset(stone.qrtr).y"
+            [style.left.px]="getOffset(stone.qrtr).x"
+          ></div>
+        </div>
+      </div>
       <div *ngIf="hasMove">
         <div
           *ngIf="isMoveValid"

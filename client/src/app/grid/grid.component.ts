@@ -46,7 +46,9 @@ export class GridComponent implements OnInit {
   tilesMicropulData: { [index: string]: number[] } = {};
   tiles: Tile[] = [];
   stones: StoneCoords[] = [];
+  enemyStones: StoneCoords[] = [];
   stonesCCA: StoneCoords[][] = [];
+  enemyStonesCCA: StoneCoords[][] = [];
 
   readonly SCROLL_THRESH = 50;
   readonly MIN_SCALE = 1;
@@ -367,6 +369,14 @@ export class GridComponent implements OnInit {
       this.stoneCCA({ coords: stone.coords, qrtr: stone.qrtr }, component);
       this.stonesCCA.push(component);
     });
+    this.enemyStonesCCA = [];
+    this.enemyStones.forEach((stone) => {
+      let component: StoneCoords[] = [];
+      this.stoneCCA({ coords: stone.coords, qrtr: stone.qrtr }, component);
+      this.enemyStonesCCA.push(component);
+    });
+    console.log(this.stones, this.enemyStones);
+    console.log(this.stonesCCA, this.enemyStonesCCA);
   }
 
   /**
@@ -440,7 +450,8 @@ export class GridComponent implements OnInit {
   }
 
   placeNewStone(coords: StoneCoords) {
-    this.stones.push(coords);
+    if (this.sharedService.getTurn()) this.stones.push(coords);
+    else this.enemyStones.push(coords);
     this.updateStonesCCA();
   }
 
