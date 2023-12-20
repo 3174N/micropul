@@ -243,6 +243,7 @@ class Room {
     this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
 
     // Check activated catalysts
+    // TODO: Stop double activation
     let connections = this.getConnections(newTile);
     let tilesToSupply = 0;
     let bonusTurns = 0;
@@ -278,72 +279,21 @@ class Room {
   }
 
   checkMove(tile) {
-    // Get adjacent tiles.
-    let tiles = this.getAdjacentTiles(tile.position);
-    let rightTile = tiles.right;
-    let leftTile = tiles.left;
-    let bottomTile = tiles.bottom;
-    let topTile = tiles.top;
+    let hasValidConnection = false;
+    let hasInvalidConnection = false;
+    let connections = this.getConnections(tile);
+    connections.forEach((con) => {
+      // Check that connection is a micropul connection.
+      if ((con[0] == 1 || con[0] == 2) && (con[1] == 1 || con[1] == 2)) {
+        if (con[0] == con[1]) hasValidConnection = true;
+        else hasInvalidConnection = true;
+      }
+    });
 
-    let tileData = this.tilesMicropulData[tile.tileIndex];
-
-    // Rotate tile.
-    const rotate90 = (grid) => {
-      const rotatedGrid = [];
-      rotatedGrid[0] = grid[2];
-      rotatedGrid[1] = grid[0];
-      rotatedGrid[2] = grid[3];
-      rotatedGrid[3] = grid[1];
-      return rotatedGrid;
-    };
-
-    for (let i = 0; i < tile.rotation / 90; i++) tileData = rotate90(tileData);
-
-    let moveValid = {
-      hasValidConnection: false,
-      hasInvalidConnection: false,
-    };
-
-    // Check connectd micropuls.
-    const checkSide = (sTile, a1, a2, b1, b2) => {
-      if (!sTile) return;
-
-      let tData = this.tilesMicropulData[sTile.tileIndex];
-      for (let i = 0; i < sTile.rotation / 90; i++) tData = rotate90(tData);
-      let data = tileData;
-
-      if (tData.length === 2) b1 = b2 = 0; // Big micropul.
-
-      let hasValidConnection = data[a1] == tData[a2] || data[b1] == tData[b2];
-      let hasInvalidConnection =
-        (data[a1] != 0 && tData[a2] != 0 && data[a1] != tData[a2]) ||
-        (data[b1] != 0 && tData[b2] != 0 && data[b1] != tData[b2]);
-
-      moveValid.hasValidConnection =
-        hasValidConnection || moveValid.hasValidConnection;
-      moveValid.hasInvalidConnection =
-        hasInvalidConnection || moveValid.hasInvalidConnection;
-    };
-
-    if (tileData.length === 4) {
-      checkSide(rightTile, 1, 0, 3, 2);
-      checkSide(leftTile, 0, 1, 2, 3);
-      checkSide(topTile, 0, 2, 1, 3);
-      checkSide(bottomTile, 2, 0, 3, 1);
-    } else {
-      // Big micropul.
-      checkSide(rightTile, 0, 0, 0, 2);
-      checkSide(leftTile, 0, 1, 0, 3);
-      checkSide(topTile, 0, 2, 0, 3);
-      checkSide(bottomTile, 0, 0, 0, 1);
-    }
-
-    return moveValid.hasValidConnection && !moveValid.hasInvalidConnection;
+    return hasValidConnection && !hasInvalidConnection;
   }
 
   getConnections(tile) {
-    // TODO: use this function for checking move
-
     // Get adjacent tiles.
     let tiles = this.getAdjacentTiles(tile.position);
     let rightTile = tiles.right;
@@ -363,7 +313,9 @@ class Room {
       return rotatedGrid;
     };
 
-    for (let i = 0; i < tile.rotation / 90; i++) tileData = rotate90(tileData);
+    if (tileData != 2)
+      for (let i = 0; i < tile.rotation / 90; i++)
+        tileData = rotate90(tileData);
 
     let connections = [];
 
@@ -378,7 +330,8 @@ class Room {
       if (!sTile) return;
 
       let tData = this.tilesData[sTile.tileIndex];
-      for (let i = 0; i < sTile.rotation / 90; i++) tData = rotate90(tData);
+      if (tData != 2)
+        for (let i = 0; i < sTile.rotation / 90; i++) tData = rotate90(tData);
       let data = tileData;
 
       if (data.length === 2) {
