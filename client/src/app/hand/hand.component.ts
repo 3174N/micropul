@@ -28,4 +28,8 @@ export class HandComponent implements OnInit {
   getHand(): string[] {
     return this.sharedService.getHand();
   }
+
+  getTurn(): boolean {
+    return this.sharedService.getTurn();
+  }
 }

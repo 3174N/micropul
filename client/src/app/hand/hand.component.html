@@ -1,4 +1,4 @@
-<div class="hand">
+<div class="hand" [ngClass]="{ transparent: !getTurn() }">
   <div class="cell" *ngFor="let cell of getHand()" (click)="onCellClick()">
     <hand-tile
       [isSelected]="cell === getSelected()"
