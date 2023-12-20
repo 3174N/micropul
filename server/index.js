@@ -90,7 +90,7 @@ class Room {
 
       player.socket.emit("setCore", this.core.length);
       player.socket.emit("tilesState", this.tiles);
-      // FIXME: Weird stuff with player hands not setting correctly.
+      // FIXME: Weird stuff with player hands not setting correctly (can't reproduce).
       player.socket.emit("setHand", player.hand);
       player.socket.emit("setSupply", player.supply.length);
     });
@@ -114,7 +114,6 @@ class Room {
     this.currentTurn = 0;
     this.addTile("40", 0, { x: 0, y: 0 }, true);
 
-    // FIXME: game starts with incorrect hands (5 for one player).
     this.updateGame();
   }
 
@@ -166,11 +165,13 @@ class Room {
     ////////////////////////
 
     // Remove tile from hand
-    let hand = this.players[this.currentTurn].hand;
-    hand.splice(
-      hand.findIndex((t) => t == index),
-      1
-    );
+    if (!isFirstTile) {
+      let hand = this.players[this.currentTurn].hand;
+      hand.splice(
+        hand.findIndex((t) => t == index),
+        1
+      );
+    }
 
     // Get all placeholder/tiles coords.
     let coords = this.tiles.map((tile) => tile.position);
