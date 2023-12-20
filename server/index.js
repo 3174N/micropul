@@ -232,11 +232,8 @@ class Room {
     this.addPlaceholder(coords, { x: position.x, y: position.y - 1 });
     this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
 
-    // TODO:
-    // Stones CCA.
-    // this.updateStonesCCA();
-
     // Check activated catalysts
+    // FIXME: Sometimes activated catalysts are not awarded correctly
     let connections = this.getConnections(newTile);
     let tilesToSupply = 0;
     let bonusTurns = 0;
@@ -363,34 +360,51 @@ class Room {
 
     // Check connected micropuls.
     const checkSide = (sTile, a1, a2, b1, b2) => {
+      // 1 = this tile; 2 = other tile.
+      // a = first connection; b = second connection
+      // example - checking the tile to the right:
+      // 0 1(a1)  0(a2) 1
+      // 2 3(b1)  2(b2) 3
+
       if (!sTile) return;
 
       let tData = this.tilesMicropulData[sTile.tileIndex];
       for (let i = 0; i < sTile.rotation / 90; i++) tData = rotate90(tData);
       let data = tileData;
 
-      // if (tData.length === 2) b1 = b2 = 0; // Big micropul.
-
-      connections.push([data[a1], tData[a2]]);
-      connections.push([data[b1], tData[b2]]);
+      if (data.length === 2) {
+        // Tile is big micropul.
+        if (tData.length === 2) {
+          // Both tiles are big micropuls.
+          connections.push([data[0], tData[0]]);
+          connections.push([data[0], tData[1]]);
+          connections.push([data[1], tData[0]]);
+          connections.push([data[1], tData[1]]);
+        } else {
+          connections.push([tData[a1], data[0]]);
+          connections.push([tData[b1], data[0]]);
+          connections.push([tData[a1], data[1]]);
+          connections.push([tData[b1], data[1]]);
+        }
+      } else if (tData.length === 2) {
+        // Other tile is big micropul.
+        connections.push([data[a1], tData[0]]);
+        connections.push([data[b1], tData[0]]);
+        connections.push([data[a1], tData[1]]);
+        connections.push([data[b1], tData[1]]);
+      } else {
+        connections.push([data[a1], tData[a2]]);
+        connections.push([data[b1], tData[b2]]);
+      }
     };
 
     // Tile:
     // 0 1
     // 2 3
-    if (tileData.length === 4) {
-      checkSide(rightTile, 1, 0, 3, 2);
-      checkSide(leftTile, 0, 1, 2, 3);
-      checkSide(topTile, 0, 2, 1, 3);
-      checkSide(bottomTile, 2, 0, 3, 1);
-    } else {
-      // Big micropul.
-      checkSide(rightTile, 0, 0, 0, 2);
-      checkSide(leftTile, 0, 1, 0, 3);
-      checkSide(topTile, 0, 2, 0, 3);
-      checkSide(bottomTile, 0, 0, 0, 1);
-      // TODO: big micropul catalysts
-    }
+    checkSide(rightTile, 1, 0, 3, 2);
+    checkSide(leftTile, 0, 1, 2, 3);
+    checkSide(topTile, 0, 2, 1, 3);
+    checkSide(bottomTile, 2, 0, 3, 1);
 
     return connections;
   }
