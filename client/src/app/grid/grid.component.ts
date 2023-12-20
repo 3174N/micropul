@@ -89,9 +89,10 @@ export class GridComponent implements OnInit {
       this.tiles = [];
       newTiles.forEach((t) => {
         if (t.isTile) {
-          this.placeNewTile(t);
+          this.placeNewTile(t, false); // Dont update CCA before all tiles are placed.
         }
       });
+      this.updateStonesCCA();
     });
     this.gameService.socket.on('endGame', () => {
       this.endGame();
@@ -242,6 +243,8 @@ export class GridComponent implements OnInit {
    * @return True if move is valid.
    */
   checkMove(tile: Tile): boolean {
+    // FIXME: not always works for some reason
+
     // Get adjacent tiles.
     let tiles = this.getAdjacentTiles(tile.position);
     let rightTile = tiles.right;
@@ -336,7 +339,7 @@ export class GridComponent implements OnInit {
     this.hasMove = false;
   }
 
-  placeNewTile(tile: Tile) {
+  placeNewTile(tile: Tile, updateCCA: boolean = true) {
     let coords: Coords[] = this.tiles.map((tile) => tile.position);
     let position = tile.position;
 
@@ -359,7 +362,7 @@ export class GridComponent implements OnInit {
     this.tiles.sort(this.sortTiles);
 
     // Stones CCA.
-    this.updateStonesCCA();
+    if (updateCCA) this.updateStonesCCA();
   }
 
   updateStonesCCA() {
@@ -375,8 +378,6 @@ export class GridComponent implements OnInit {
       this.stoneCCA({ coords: stone.coords, qrtr: stone.qrtr }, component);
       this.enemyStonesCCA.push(component);
     });
-    console.log(this.stones, this.enemyStones);
-    console.log(this.stonesCCA, this.enemyStonesCCA);
   }
 
   /**
@@ -667,12 +668,13 @@ export class GridComponent implements OnInit {
     let position = coords.coords;
 
     // Get adjacent tiles.
-    let tiles = this.getAdjacentTiles(coords.coords);
-    let rightTile = tiles.right;
-    let leftTile = tiles.left;
-    let bottomTile = tiles.bottom;
-    let topTile = tiles.top;
+    let aTiles = this.getAdjacentTiles(coords.coords);
+    let rightTile = aTiles.right;
+    let leftTile = aTiles.left;
+    let bottomTile = aTiles.bottom;
+    let topTile = aTiles.top;
 
+    // console.log(this.tiles);
     let tile = this.tiles.find(
       (tile) =>
         tile.position.x == position.x &&

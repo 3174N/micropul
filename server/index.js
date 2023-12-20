@@ -86,8 +86,11 @@ class Room {
 
   updateGame() {
     this.players.forEach((player) => {
+      // TODO: Update stones
+
       player.socket.emit("setCore", this.core.length);
       player.socket.emit("tilesState", this.tiles);
+      // FIXME: Weird stuff with player hands not setting correctly.
       player.socket.emit("setHand", player.hand);
       player.socket.emit("setSupply", player.supply.length);
     });
@@ -111,6 +114,7 @@ class Room {
     this.currentTurn = 0;
     this.addTile("40", 0, { x: 0, y: 0 }, true);
 
+    // FIXME: game starts with incorrect hands (5 for one player).
     this.updateGame();
   }
 
@@ -233,7 +237,6 @@ class Room {
     this.addPlaceholder(coords, { x: position.x, y: position.y + 1 });
 
     // Check activated catalysts
-    // FIXME: Sometimes activated catalysts are not awarded correctly
     let connections = this.getConnections(newTile);
     let tilesToSupply = 0;
     let bonusTurns = 0;
@@ -368,7 +371,7 @@ class Room {
 
       if (!sTile) return;
 
-      let tData = this.tilesMicropulData[sTile.tileIndex];
+      let tData = this.tilesData[sTile.tileIndex];
       for (let i = 0; i < sTile.rotation / 90; i++) tData = rotate90(tData);
       let data = tileData;
 
@@ -381,12 +384,12 @@ class Room {
           connections.push([data[1], tData[0]]);
           connections.push([data[1], tData[1]]);
         } else {
-          connections.push([tData[a1], data[0]]);
-          connections.push([tData[b1], data[0]]);
-          connections.push([tData[a1], data[1]]);
-          if (tData[a1] != tData[b1])
+          connections.push([tData[a2], data[0]]);
+          connections.push([tData[b2], data[0]]);
+          connections.push([tData[a2], data[1]]);
+          if (tData[a2] != tData[b2])
             // Avoid double awarding.
-            connections.push([tData[b1], data[1]]);
+            connections.push([tData[b2], data[1]]);
         }
       } else if (tData.length === 2) {
         // Other tile is big micropul.
