@@ -384,14 +384,16 @@ class Room {
           connections.push([tData[a1], data[0]]);
           connections.push([tData[b1], data[0]]);
           connections.push([tData[a1], data[1]]);
-          connections.push([tData[b1], data[1]]);
+          if (tData[a1] != tData[b1])
+            // Avoid double awarding.
+            connections.push([tData[b1], data[1]]);
         }
       } else if (tData.length === 2) {
         // Other tile is big micropul.
         connections.push([data[a1], tData[0]]);
         connections.push([data[b1], tData[0]]);
         connections.push([data[a1], tData[1]]);
-        connections.push([data[b1], tData[1]]);
+        if (data[a1] != data[b1]) connections.push([data[b1], tData[1]]);
       } else {
         connections.push([data[a1], tData[a2]]);
         connections.push([data[b1], tData[b2]]);
