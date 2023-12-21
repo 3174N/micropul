@@ -2,6 +2,7 @@ import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { SharedService } from '../shared.service';
 import { GameService } from '../services/game.service';
 import tilesData from './tiles.json';
+import { ActivatedRoute } from '@angular/router';
 
 // TODO: DOCUMENTATION
 
@@ -81,7 +82,8 @@ export class GridComponent implements OnInit {
 
   constructor(
     private sharedService: SharedService,
-    private gameService: GameService
+    private gameService: GameService,
+    private activatedRoute: ActivatedRoute
   ) {
     this.gameService.socket.on('setHand', (hand: string[]) => {
       this.sharedService.setHand(hand);
@@ -119,7 +121,10 @@ export class GridComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.gameService.socket.emit('joinGame', 'testroom');
+    this.gameService.socket.emit(
+      'joinGame',
+      this.activatedRoute.snapshot.paramMap.get('room')
+    );
   }
 
   startGame() {

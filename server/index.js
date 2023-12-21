@@ -647,7 +647,7 @@ var rooms = {};
 io.on("connection", (socket) => {
   console.log("A client has connected");
   socket.on("joinGame", (room) => {
-    console.log("Got joinGame from socket");
+    console.log(`Got joinGame from socket for room: ${room}`);
     if (rooms[room] == undefined) {
       rooms[room] = new Room(room);
     }

@@ -18,6 +18,8 @@ import { HandTileComponent } from './hand-tile/hand-tile.component';
 import { SupplyComponent } from './supply/supply.component';
 import { CoreComponent } from './core/core.component';
 import { StonesComponent } from './stones/stones.component';
+import { GameComponent } from './game/game.component';
+import { JoinGameComponent } from './join-game/join-game.component';
 
 const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
@@ -32,6 +34,8 @@ const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
     SupplyComponent,
     CoreComponent,
     StonesComponent,
+    GameComponent,
+    JoinGameComponent,
   ],
   imports: [
     BrowserModule,

@@ -11,7 +11,7 @@ interface SelectedTile {
 export class SharedService {
   private selectedTile: SelectedTile = { tileIndex: null, rotation: 0 };
 
-  private stoneSelected: boolean = false;
+  private stoneSelected: boolean = true;
   private stones: number = 3;
 
   private hand: string[] = [];
